@@ -1,7 +1,3 @@
-stork-android-client
-====================
-
-Android client for Stork.
 About Client:
 
 This is an Android App which will work as an client for Stork Data Scheduler. It will hook up to Stork's Web Services (Windows azure) using Rest APIs and then communicate using them. Some of the features its first version will have would be multi-protocol framework for Android OS, REST Api connection, optimizing data transfer info while consuming least resources (thread schedulling , polling interval calc and assumed processing). Planned GUIs for all Stork Components as well as file listing on both server side. 

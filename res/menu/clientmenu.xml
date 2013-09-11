@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/transfer12"
+        android:icon="@drawable/arrow_left"
+        android:title="Transfer Files"/>
+    <item
+        android:id="@+id/transfer21"
+        android:icon="@drawable/arrow_right"
+        android:title="Transfer Files"/>
+    <item
+        android:id="@+id/progress"
+        android:title="Get Progress"
+        android:icon="@drawable/chart_bar"/>
+     <item
+        android:id="@+id/disconnectAll"
+        android:title="Disconnect All"
+        android:icon="@drawable/gtk_disconnect"/>
+     
+     <item
+         android:id="@+id/config"
+         android:title="Config"
+         android:icon="@drawable/config">
+     </item>
+     
+     <item
+         android:id="@+id/select"
+         android:title="Select File"
+         android:icon="@drawable/file">
+     </item>
+    
+</menu>

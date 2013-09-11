@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+     <TextView
+         android:id="@+id/textView1"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_alignBaseline="@+id/check"
+         android:layout_toRightOf="@+id/check"
+         android:text="Overwrite always"
+         android:textSize="15sp" />
+
+     <CheckBox
+         android:id="@+id/CheckBox01"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_alignLeft="@+id/CheckBox02"
+         android:layout_below="@+id/check"
+         android:layout_marginTop="17dp"
+         android:button="@drawable/checkbox"
+         android:focusable="false"
+         android:focusableInTouchMode="false" />
+
+     
+      <CheckBox
+         android:id="@+id/CheckBox03"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_below="@+id/CheckBox01"
+         android:layout_marginTop="19dp"
+         android:layout_toLeftOf="@+id/textView1"
+         android:button="@drawable/checkbox"
+         android:focusable="false"
+         android:focusableInTouchMode="false" />
+
+     <CheckBox
+         android:id="@+id/CheckBox02"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_below ="@+id/CheckBox03"
+         android:layout_marginTop="21dp"
+         android:button="@drawable/checkbox"
+         android:focusable="false"
+         android:focusableInTouchMode="false" />
+     
+     <CheckBox
+         android:id="@+id/CheckBox04"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_below="@+id/CheckBox02" 
+         android:layout_marginTop="23dp"
+         android:button="@drawable/checkbox"
+         android:focusable="false"
+         android:focusableInTouchMode="false" />
+
+     <TextView
+         android:id="@+id/TextView01"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_alignLeft="@+id/textView1"
+         android:layout_alignParentRight="true"
+         android:layout_alignBaseline="@+id/CheckBox01"
+         android:text="Overwrite never"
+         android:textSize="15sp" />
+
+     <TextView
+         android:id="@+id/TextView02"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_alignLeft="@+id/TextView01"
+         android:layout_alignParentRight="true"
+         android:layout_alignBaseline="@+id/CheckBox03"
+         android:text="Overwrite updated"
+         android:textSize="15sp" />
+
+     <TextView
+         android:id="@+id/TextView03"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_alignLeft="@+id/TextView02"
+         android:layout_alignParentRight="true"
+         android:layout_alignBaseline="@+id/CheckBox02"
+         android:text="Overwrite if checksum is different"
+         android:textSize="15sp" />
+
+     <TextView
+         android:id="@+id/TextView04"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_alignLeft="@+id/TextView03"
+         android:layout_alignParentRight="true"
+         android:layout_alignBaseline="@+id/CheckBox04"
+         android:text="Ask always before overwrite"
+         android:textSize="15sp" />
+
+     <CheckBox
+         android:id="@+id/check"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_alignParentLeft="true"
+         android:layout_alignParentTop="true"
+         android:button="@drawable/checkbox"
+         android:focusable="false"
+         android:focusableInTouchMode="false" />
+
+</RelativeLayout>

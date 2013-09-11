@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">StorkCloud Android Client</string>
+    <string name="server_prompt">Please pick a server!</string>
+    <string name="connect_to_a_server">Tap to \nConnect to a server</string>
+    <string name="protocol">Protocol</string>
+    <string name="password">Password</string>
+    <string name="username">UserName</string>
+    <string name="port">Port</string>
+    <string name="servername">serverName</string>
+    <string name="source">eric1</string>
+    <string name="destination">max3</string>
+    <string name="login">Login</string>
+    <string name="config">Configuration</string>
+    <string name="Add_Credential">Add Credential</string>
+    <string name="server_one">server_one</string>
+    <string name="server_two">server_two</string>
+    <string name="jobid">JobID</string>
+    <string name="jobprogress">Job Progress</string>
+    <string name="blank"></string>
+    <string name="icon_description">icon for folder or file</string>
+    <string name="serverpath">./path/to/dir</string>
+
+    <!-- added by sanat -->
+    <string name="proxy_prompt">Choose a proxy</string>
+    <string name="Login">Login</string>
+    <string name="ProtocolS">My Proxy / Credentials Selection</string>
+    <string name="submit">Submit</string>
+
+    <string-array name="proxy_arrays">
+        <item></item>
+        <item>myproxy.teragrid.org</item>
+        <item>trestles-dm.sdsc.xsede.org</item>
+    </string-array>
+
+</resources>
