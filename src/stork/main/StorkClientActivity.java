@@ -28,6 +28,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -80,7 +81,6 @@ public class StorkClientActivity extends Activity {
 			showToast("Network is unavailable", true);
 			return;
 		}
-		
 		// Spawn a thread to fetch the creds.
 		new Thread() {
 			public void run() {
@@ -91,7 +91,7 @@ public class StorkClientActivity extends Activity {
 				}
 			}
 		}.start();
-
+		
 		// Grab the views for both lists.
 		lc[0] = new TreeViewRoot("left", (ViewGroup) findViewById(R.id.left));
 		lc[1] = new TreeViewRoot("right", (ViewGroup) findViewById(R.id.right));
@@ -105,7 +105,7 @@ public class StorkClientActivity extends Activity {
 		for (final TreeViewRoot l : lc) {
 			registerForContextMenu(l.view);
 
-			Button searchButton = (Button) l.view.findViewById(R.id.search_button);
+			Button searchButton = (Button) l.view.findViewById(R.id.serverSelection);
 			searchButton.setOnClickListener(new View.OnClickListener() { 
 				public void onClick(View v) {
 					currentContext = l;
@@ -236,11 +236,16 @@ public class StorkClientActivity extends Activity {
 		return true;
 	}
 
+	final static Handler toaster = new Handler();
 	public static void showToast(String msg) {
 		showToast(msg, false);
-	} public static void showToast(String msg, boolean is_long) {
-		int l = (is_long) ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT;
-		Toast.makeText(context, msg, l).show();
+	} public static void showToast(final String msg, boolean is_long) {
+		final int l = (is_long) ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT;
+		toaster.post(new Runnable() {
+			public void run() {
+				Toast.makeText(context, msg, l).show();
+			}
+		});
 	}
 	
 	private boolean isNetworkAvailable() {
@@ -248,19 +253,4 @@ public class StorkClientActivity extends Activity {
 		NetworkInfo networkInfo = manager.getActiveNetworkInfo();
 		return networkInfo != null && networkInfo.isConnected();
 	}
-	 public void onPause() {
-	        super.onPause();
-	        Log.v("SCA", "- ON PAUSE -");
-	    }
-		
-		@Override
-	    public void onStop() {
-	        super.onStop();
-	     Log.v("SCA", "-- ON STOP --");
-	    }
-		@Override
-		public void onRestart() {
-			Log.v("SCA", "Restart");
-			super.onRestart();
-		}
 }

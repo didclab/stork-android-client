@@ -35,6 +35,7 @@ public class Server {
 	static URI stork_uri = URI.create("http://didclab-ws4.cse.buffalo.edu:9000");
 	public static volatile HttpClient httpclient;
 	public static List<String> credentialKeys = new ArrayList<String>();
+	public static Ad cookie = new Ad();
 	//private static ClientConnectionManager conman =
 		//	new PoolingClientConnectionManager();
 
@@ -91,6 +92,7 @@ public class Server {
 		URI uri = stork_uri.resolve(path);
 		return sendHTTPRequest(hc, uri, ad, method);
 	} @SuppressWarnings("deprecation")
+	
 	public static String sendHTTPRequest(HttpClient hc, URI uri, Ad ad, String method) {
 		if (hc == null) hc = httpclient;
 		if (ad == null) ad = new Ad();
@@ -100,6 +102,8 @@ public class Server {
 		HttpResponse resp;
 		
 		try {
+			ad = ad.merge(cookie);
+			
 			// Create HTTP request.
 			if (method.equals("GET")) {
 				String s = adToQueryString(ad);
@@ -129,7 +133,6 @@ public class Server {
 				String s = EntityUtils.toString(resp.getEntity());
 				throw new RuntimeException("error: "+s);
 			}
-	
 			// Get the response entity.
 			String s = EntityUtils.toString(resp.getEntity());
 			resp.getEntity().consumeContent();

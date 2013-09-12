@@ -17,11 +17,8 @@
         <activity
             android:name="stork.main.StorkClientActivity"
             android:label="@string/app_name"
+             android:launchMode="singleInstance"
             android:screenOrientation="landscape" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name="stork.JobProgressActivity"
@@ -38,11 +35,13 @@
         <activity
             android:name="stork.SelectCredential"
             android:label="@string/ProtocolS"
+            android:launchMode="singleInstance"
             android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name="stork.Login"
             android:label="MyProxy Details"
+            android:launchMode="singleInstance"
             android:screenOrientation="landscape" >
         </activity>
         <activity
@@ -51,6 +50,16 @@
             android:launchMode="singleInstance"
             android:screenOrientation="landscape" >    
         </activity>
+        <activity android:name="stork.main.StartupClass"
+            android:label="Welcome to Stork"
+            android:launchMode="singleInstance"
+            android:screenOrientation="landscape">
+               <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
     </application>
 
 </manifest>

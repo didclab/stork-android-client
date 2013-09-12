@@ -6,7 +6,9 @@ import java.util.*;
 import stork.main.StorkClientActivity;
 import static stork.main.StorkClientActivity.inflater;
 import android.util.Log;
+import static android.view.HapticFeedbackConstants.VIRTUAL_KEY;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
@@ -19,55 +21,95 @@ import stork.cache.Cache;
  * the background causes it to toggle state and potentially fetch
  * listing data.
  */
-public class TreeView extends LinearLayout {
+public class TreeView {
 	public TreeView parent;
 	public String name;
+	public List<TreeView> children;
 	public boolean dir = false;
-	public boolean open;
-	public LinearLayout view = null;
+	public boolean open = false;
+	
+	public boolean fetching = false;
 	public boolean fetched = false;
-	
-	protected TreeView(){
-		super(StorkClientActivity.context);
-		setOrientation(VERTICAL);
-		dir = true;
-	}
-	
+	public boolean error = false;
+
 	public TreeView(TreeView parent, String name, boolean dir) {
-		this();
 		this.parent = parent;
 		this.name = name;
 		this.dir = dir;
-		view = (LinearLayout) inflater().inflate(R.layout.treenode, null);
-		view.addView(this);
-		view.setTag(this);
+		children = new LinkedList<TreeView>();
+	}
+	
+	public int height(){
+		if(!isOpen())
+			return 1;
+		int t = 1;
+		for(TreeView c:  children)
+			t += c.height();
+		return t;
+	}
+	
+	protected View convertView(LinearLayout v){
+		if(v == null)
+			v = (LinearLayout) inflater().inflate(R.layout.treenode, null);
+
+		int h = isOpen() ? 10 : 0;
+		v.setPadding(depth()*20, 0, 0, h);
+
+		ImageView iv = (ImageView) v.findViewById(R.id.icon);
+		iv.setImageResource(dir ? R.drawable.folder : R.drawable.text);
 		
-		view.setOnClickListener(new OnClickListener() {
+		TextView textView = (TextView) v.findViewById(R.id.label);
+		textView.setText(toString());
+		
+		CheckBox c = (CheckBox) v.findViewById(R.id.check);
+		c.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				onChecked(isChecked ? TreeView.this : null);
+			}
+		});
+		
+		v.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				try {
 					toggle();
+					v.performHapticFeedback(VIRTUAL_KEY);
 				} catch (Exception e) {
 					StorkClientActivity.showToast(e.getMessage());
 				}
 			}
 		});
 		
-		setPadding(20, 0, 0, 0);
-		setOpen(false);
+		v.invalidate();
 		
-		ImageView iv = (ImageView) view.findViewById(R.id.icon);
-		iv.setImageResource(dir ? R.drawable.folder : R.drawable.text);
-		
-		TextView textView = (TextView) view.findViewById(R.id.label);
-		textView.setText(toString());
-		
-		CheckBox c = (CheckBox) view.findViewById(R.id.check);
-		c.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				onChecked(isChecked ? TreeView.this : null);
+		return v;
+	}
+	
+	public TreeView getChild(int i){
+		if (i == 0) return this;
+		for (TreeView tv: children){
+			int h = tv.height();
+			if (i == h)
+				return tv;
+			if (i < h)
+				return tv.getChild(i-1);
+			i -= h;
+		} return null;
+	}
+	
+	public int getFlatPosition(){
+		int i = parent.getFlatPosition()+1;
+		for(TreeView tv: parent.children){
+			if(tv == this){
+				break;
 			}
-		});
-	} 
+			i += tv.height();
+		}
+		return i;
+	}
+	
+	protected int depth() {
+		return parent.depth()+1;
+	}
 
 	public String getPath() {
 		return getURI().getPath();
@@ -90,53 +132,50 @@ public class TreeView extends LinearLayout {
 	} public void setOpen(boolean v) {
 		open = v;
 		open = isOpen();
-		setVisibility(open ? VISIBLE : GONE);
-		redraw();
+		if (open && !fetched)
+			fetchChildren();
+		refreshData();
 	} public boolean isOpen() {
-		// We should always consider root views to be open.
-		return dir && (open || name == null);
+		return dir && open;
 	}
 
+	public void refreshData() {
+		parent.refreshData();
+	}
+	
 	public String toString() {
 		return name+(dir ? "/" : "");
 	}
-	
-	public int getChildCount() {
-		if (dir && isOpen()) try {
-			if (dir && !fetched) fetchChildren();
-			return super.getChildCount();
-		} catch (Exception e) {
-			// Fall through.
-		} return 0;
-	}
-	
-	public View getChildAt(int i) {
-		if (dir && !fetched) fetchChildren();
-		return super.getChildAt(i);
-	}
-	
-	public TreeView getChildTreeView(int i) {
-		return (TreeView) getChildAt(i).getTag();
-	}
-	
-	public void redraw() {
-		parent.postInvalidate();
-	}
 
+	public synchronized void asyncFetchChildren() {
+		if (fetching)
+			return;
+		fetching = true;
+		new Thread() {
+			public void run() {
+				fetchChildren();
+			}
+		}.start();
+	}
+	
 	public Ad fetchChildren() {
-		try {
+		if (dir) try {
 			Ad listing = fetchListingData();
+			fetched = true;
 			createTreeViews(listing);
 			return listing;
 		} catch (Exception e) {
+			error = true;
 			StorkClientActivity.showToast(e.getMessage());
 			return new Ad();
-		}
+		} return new Ad();
 	}
 
-	public Ad fetchListingData() {
+	private Ad fetchListingData() {
 		URI uri = getURI();
 
+		if (!dir) return new Ad();
+		
 		// Check if we can get listings from the cache.
 		Ad listing = Cache.getFromCache(uri);
 
@@ -157,16 +196,10 @@ public class TreeView extends LinearLayout {
 	
 	// Draw all of the treeviews below this treeview.
 	private void createTreeViews(Ad ad) {
-		System.out.println("About to create all TreeViews");
-
 		if (ad.has("files")) for (Ad a : ad.getAds("files")) {
-			TreeView t = new TreeView(this, a.get("name"), a.has("dir"));
-			addView(t.view);
-			StorkClientActivity.queue.add(t);
+			boolean is_dir = a.get("dir", "").equals("true");
+			children.add(new TreeView(this, a.get("name"), is_dir));
 		}
-
-		fetched = true;
-		redraw();
 	}
 	
 	//bubbles up the selected child to TreeViewRoot
@@ -176,8 +209,8 @@ public class TreeView extends LinearLayout {
 	}
 	//update the UI
 	public void unselect(){
-		CheckBox c = (CheckBox) view.findViewById(R.id.check);
-		c.setSelected(false);
+		//CheckBox c = (CheckBox) view.findViewById(R.id.check);
+		//c.setSelected(false);
 	}
 	
 }

@@ -33,9 +33,10 @@ public final class R {
         public static final int ic_launcher=0x7f020010;
         public static final int refresh_small=0x7f020011;
         public static final int stork=0x7f020012;
-        public static final int stork_icon=0x7f020013;
-        public static final int text=0x7f020014;
-        public static final int x=0x7f020015;
+        public static final int stork_crop=0x7f020013;
+        public static final int stork_icon=0x7f020014;
+        public static final int text=0x7f020015;
+        public static final int x=0x7f020016;
     }
     public static final class id {
         public static final int AddCredential=0x7f070008;
@@ -44,6 +45,8 @@ public final class R {
         public static final int CheckBox03=0x7f070011;
         public static final int CheckBox04=0x7f070012;
         public static final int Password=0x7f07001e;
+        public static final int StartupRegister=0x7f070031;
+        public static final int StartupSubmit=0x7f070030;
         public static final int TextView01=0x7f070013;
         public static final int TextView02=0x7f070014;
         public static final int TextView03=0x7f070015;
@@ -51,11 +54,13 @@ public final class R {
         public static final int UserName=0x7f07001d;
         public static final int btnSubmit=0x7f07001f;
         public static final int check=0x7f07000e;
-        public static final int config=0x7f070034;
-        public static final int disconnectAll=0x7f070033;
-        public static final int goBack=0x7f070036;
-        public static final int goStartAgain=0x7f070037;
-        public static final int icon=0x7f07002f;
+        public static final int config=0x7f070038;
+        public static final int disconnectAll=0x7f070037;
+        public static final int getPassword=0x7f07002f;
+        public static final int getUserName=0x7f07002e;
+        public static final int goBack=0x7f07003a;
+        public static final int goStartAgain=0x7f07003b;
+        public static final int icon=0x7f070033;
         public static final int jobID=0x7f070027;
         public static final int label=0x7f070024;
         public static final int left=0x7f07000b;
@@ -66,7 +71,7 @@ public final class R {
         public static final int password=0x7f070004;
         public static final int popupElement=0x7f070000;
         public static final int popupElement_certificate=0x7f07000c;
-        public static final int progress=0x7f070032;
+        public static final int progress=0x7f070036;
         public static final int progressBar=0x7f070029;
         public static final int progressBarLoadingDir=0x7f070026;
         public static final int progressLoading=0x7f070021;
@@ -78,20 +83,20 @@ public final class R {
         public static final int relLayout=0x7f070023;
         public static final int right=0x7f07000a;
         public static final int row_icon=0x7f070025;
-        public static final int search_button=0x7f070018;
-        public static final int select=0x7f070035;
+        public static final int select=0x7f070039;
         public static final int server=0x7f070017;
         public static final int serverName=0x7f070001;
         public static final int serverPath=0x7f070002;
+        public static final int serverSelection=0x7f070018;
         public static final int server_header=0x7f070019;
         public static final int server_header_x=0x7f07001a;
         public static final int server_refresh=0x7f07001b;
         public static final int spinner1=0x7f070006;
         public static final int tLayout=0x7f070020;
         public static final int textView1=0x7f07000d;
-        public static final int transfer12=0x7f070030;
-        public static final int transfer21=0x7f070031;
-        public static final int treenode=0x7f07002e;
+        public static final int transfer12=0x7f070034;
+        public static final int transfer21=0x7f070035;
+        public static final int treenode=0x7f070032;
         public static final int tv_progress=0x7f07002a;
         public static final int username=0x7f070003;
     }
@@ -107,7 +112,8 @@ public final class R {
         public static final int progressrow=0x7f030008;
         public static final int rowbuttonlayout=0x7f030009;
         public static final int rowprogresslayout=0x7f03000a;
-        public static final int treenode=0x7f03000b;
+        public static final int startup=0x7f03000b;
+        public static final int treenode=0x7f03000c;
     }
     public static final class menu {
         public static final int clientmenu=0x7f060000;

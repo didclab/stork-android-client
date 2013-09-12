@@ -17,7 +17,6 @@ public class Login extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.login);
-		Intent intent = getIntent();
 
 		final EditText text = (EditText) findViewById(R.id.textView1); 
 		final String hostname =  text.getText().toString();

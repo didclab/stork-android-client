@@ -5,11 +5,13 @@ import java.net.URI;
 import stork.main.R;
 import stork.main.StorkClientActivity;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import static android.view.HapticFeedbackConstants.VIRTUAL_KEY;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -36,6 +38,7 @@ public class ConnectForm extends Activity {
 			public void onClick(View v) {
 				try {
 					onClick2(v);
+					v.performHapticFeedback(VIRTUAL_KEY);
 				} catch (Exception e) {
 					e.printStackTrace();
 					Toast.makeText(ConnectForm.this, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -67,40 +70,11 @@ public class ConnectForm extends Activity {
 				Intent intent = new Intent(context, Login.class);
 				intent.putExtra("hi", "LCL");
 				startActivity(intent);
-				finish();
+				//finish();
 			}
 		});
 //http://128.205.39.40:9000/api/stork_ls?uri=ftp://didclab-ws9:21/&depth=0
 		// Set the click listener for the credential picker.
-	}
-	@Override
-	public void onSaveInstanceState(Bundle savedInstanceState) {
-		Log.v("saved", "InstanceStateCalled");
-		  super.onSaveInstanceState(savedInstanceState);
-	}
-	@Override
-	public void onRestoreInstanceState(Bundle savedInstanceState) {
-	  super.onRestoreInstanceState(savedInstanceState);
-	  Log.v("server", savedInstanceState.get("Servername").toString());
-	}
-	@Override
-    public void onPause() {
-        super.onPause();
-        Log.v("Calling", "- ON PAUSE -");
-    }
+	}//end of OnCreate
 	
-	@Override
-    public void onStop() {
-        super.onStop();
-     Log.v("Calling", "-- ON STOP --");
-    }
-	@Override
-	public void onRestart() {
-		super.onRestart();
-		Log.v("on", "Restart");
-	}
-	public void onBackPressed() {
-		Intent intent = new Intent(ConnectForm.this, StorkClientActivity.class);
-		startActivity(intent);
-	}
 }

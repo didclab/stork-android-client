@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" 
+    android:background="@drawable/stork_crop">
+
+     <EditText
+         android:id="@+id/getUserName"
+         android:layout_width="200dp"
+         android:layout_height="wrap_content"
+         android:layout_alignParentRight="true"
+         android:layout_alignParentTop="true"
+         android:hint="UserName" >
+         <requestFocus />
+     </EditText>
+
+     <EditText
+         android:id="@+id/getPassword"
+         android:layout_width="200dp"
+         android:layout_height="wrap_content"
+         android:layout_alignParentRight="true"
+         android:layout_below="@+id/getUserName"
+         android:hint="Password" 
+         android:inputType="textPassword"/>
+
+     <Button
+         android:id="@+id/StartupSubmit"
+         android:layout_width="100dp"
+         android:layout_height="wrap_content"
+         android:layout_alignParentRight="true"
+         android:layout_below="@+id/getPassword"
+         android:text="Submit" />
+
+     <Button
+         android:id="@+id/StartupRegister"
+         android:layout_width="100dp"
+         android:layout_height="wrap_content"
+         android:layout_alignLeft="@+id/getPassword"
+         android:layout_below="@+id/getPassword"
+         android:text="Register" />
+    
+</RelativeLayout>
