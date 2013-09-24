@@ -11,7 +11,8 @@
          android:layout_height="wrap_content"
          android:layout_alignParentRight="true"
          android:layout_alignParentTop="true"
-         android:hint="UserName" >
+         android:hint="UserName">
+
          <requestFocus />
      </EditText>
 
@@ -21,8 +22,9 @@
          android:layout_height="wrap_content"
          android:layout_alignParentRight="true"
          android:layout_below="@+id/getUserName"
-         android:hint="Password" 
-         android:inputType="textPassword"/>
+         android:hint="Password"
+         android:inputType="textPassword"
+          />
 
      <Button
          android:id="@+id/StartupSubmit"
@@ -39,5 +41,13 @@
          android:layout_alignLeft="@+id/getPassword"
          android:layout_below="@+id/getPassword"
          android:text="Register" />
+
+     <CheckBox
+         android:id="@+id/rememberMe"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_alignLeft="@+id/StartupRegister"
+         android:layout_below="@+id/StartupSubmit"
+         android:text="Remember me" />
     
 </RelativeLayout>

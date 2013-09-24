@@ -40,11 +40,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
-/**
- * Main Activity for Stork Thin Client
- * 
- * @author Basically Everyone
- */
 public class StorkClientActivity extends Activity {
 	public static BlockingQueue<TreeView> queue = new LinkedBlockingQueue<TreeView>();
 	public static TreeViewRoot[] lc = { null, null };
@@ -84,8 +79,11 @@ public class StorkClientActivity extends Activity {
 		// Spawn a thread to fetch the creds.
 		new Thread() {
 			public void run() {
-				Ad ad = Server.sendRequest("/api/stork_info?type=cred");
+				Ad ad = Server.sendRequest("/api/stork/info?type=cred", null, "POST");
+				System.out.println(ad.toString());
 				Set<Entry<Object, AdObject>> a = ad.entrySet();
+				Server.credentialKeys.clear();
+				Server.credentialKeys.add("");
 				for(Entry<Object, AdObject> s : a){
 					Server.credentialKeys.add(s.getKey().toString());
 				}
@@ -169,18 +167,21 @@ public class StorkClientActivity extends Activity {
 					| Intent.FLAG_ACTIVITY_NEW_TASK
 					| Intent.FLAG_ACTIVITY_NO_ANIMATION);
 			startActivity(i);
+			finish();
 			return true;
 		case R.id.config:
 			Intent intent = new Intent(this, Configuration.class);
 			startActivity(intent);
 			return true;
-		case R.id.select:
-			openFiles();//file browsing on the sd card
-			return true;
+//		case R.id.select:
+//			openFiles();//file browsing on the sd card
+//			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
+	
+	//for browsing the contents of sd card.
 	private void openFiles() {
 		FileDialog fileDialog = new FileDialog(StorkClientActivity.this, mPath);
         fileDialog.setFileEndsWith(".txt");
@@ -205,9 +206,17 @@ public class StorkClientActivity extends Activity {
 		TreeView from = fromRoot.selectedChild;
 		TreeView to = toRoot.selectedChild;
 		//Checking that the user makes a selection
-		if (from == null || to == null) {
+		if (from == null && to == null) {
 			showToast("Make a selection");
 			return false;
+		}
+		//if the user misses to select a directory on one of the sides then transfer to the path set on the login page.
+		if (from != null || to == null) {
+			
+			to = toRoot;//how to acces
+		}
+		if (from == null || to != null) {
+			from = fromRoot;
 		}
 		//perform validation 
 		if(from.dir && !to.dir){
@@ -249,8 +258,18 @@ public class StorkClientActivity extends Activity {
 	}
 	
 	private boolean isNetworkAvailable() {
-		ConnectivityManager manager =  (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo networkInfo = manager.getActiveNetworkInfo();
-		return networkInfo != null && networkInfo.isConnected();
+		ConnectivityManager connectivity = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivity != null)
+        {
+            NetworkInfo[] info = connectivity.getAllNetworkInfo();
+            if (info != null)
+                for (int i = 0; i < info.length; i++)
+                    if (info[i].getState() == NetworkInfo.State.CONNECTED)
+                    {
+                        return true;
+                    }
+
+        }
+        return false;
 	}
 }

@@ -29,13 +29,6 @@ public class ProgressListAdapter extends ArrayAdapter<ProgressView> {
 	private List<ProgressView> progressList;
 	private Activity context;
 
-	/**
-	 * Default constructor
-	 * 
-	 * @param context
-	 * @param list
-	 * @param id
-	 */
 	public ProgressListAdapter(Activity context, List<ProgressView> list, int id) {
 		super(context, id, list);
 		this.context = context;
@@ -49,7 +42,6 @@ public class ProgressListAdapter extends ArrayAdapter<ProgressView> {
 		protected TextView progressMessage;
 		protected ProgressBar progressbar;
 		protected TextView tv_progress;
-
 	}
 
 	@Override
@@ -107,7 +99,6 @@ public class ProgressListAdapter extends ArrayAdapter<ProgressView> {
 			holder.progressMessage.setVisibility(View.VISIBLE);
 			holder.progressMessage.setText(progressList.get(position).getMessage());
 			holder.tv_progress.setText(Integer.toString(progressList.get(position).getProgress()));
-			
 	} 
 		else{
 			holder.progressbar.setProgress(progressList.get(position).getProgress());

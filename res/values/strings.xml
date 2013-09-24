@@ -22,8 +22,7 @@
     <string name="icon_description">icon for folder or file</string>
     <string name="serverpath">./path/to/dir</string>
 
-    <!-- added by sanat -->
-    <string name="proxy_prompt">Choose a proxy</string>
+    <string name="cred_prompt">Choose a Credential</string>
     <string name="Login">Login</string>
     <string name="ProtocolS">My Proxy / Credentials Selection</string>
     <string name="submit">Submit</string>

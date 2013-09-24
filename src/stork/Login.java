@@ -39,7 +39,7 @@ public class Login extends Activity {
 							   put("type", "gss-cert").
 							   put("action", "create");
 					
-					Ad res = Server.sendRequest(null, "/api/stork_cred", ad, "POST");
+					Ad res = Server.sendRequest(null, "/api/stork/cred", ad, "POST");
 					String cred = res.get("uuid");
 					Server.credentialKeys.add(cred);
 					Toast.makeText(Login.this, "Got token: "+cred, Toast.LENGTH_LONG).show();

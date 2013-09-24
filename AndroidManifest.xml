@@ -51,7 +51,7 @@
             android:screenOrientation="landscape" >    
         </activity>
         <activity android:name="stork.main.StartupClass"
-            android:label="Welcome to Stork"
+            android:label="Stork"
             android:launchMode="singleInstance"
             android:screenOrientation="landscape">
                <intent-filter>

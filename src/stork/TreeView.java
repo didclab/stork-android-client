@@ -8,7 +8,6 @@ import static stork.main.StorkClientActivity.inflater;
 import android.util.Log;
 import static android.view.HapticFeedbackConstants.VIRTUAL_KEY;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
@@ -31,6 +30,7 @@ public class TreeView {
 	public boolean fetching = false;
 	public boolean fetched = false;
 	public boolean error = false;
+	static int count = 0; 
 
 	public TreeView(TreeView parent, String name, boolean dir) {
 		this.parent = parent;
@@ -48,7 +48,7 @@ public class TreeView {
 		return t;
 	}
 	
-	protected View convertView(LinearLayout v){
+	protected View convertView(LinearLayout v) {
 		if(v == null)
 			v = (LinearLayout) inflater().inflate(R.layout.treenode, null);
 
@@ -62,9 +62,24 @@ public class TreeView {
 		textView.setText(toString());
 		
 		CheckBox c = (CheckBox) v.findViewById(R.id.check);
+		c.setOnCheckedChangeListener(null);
+		c.setChecked(isSelected());
 		c.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				onChecked(isChecked ? TreeView.this : null);
+				if (isSelected() && !isChecked)
+					root().selectedChild = null;
+				else if (!isSelected() && isChecked)
+					root().selectedChild = TreeView.this;
+				redraw();
+				
+				if(TreeView.count == 0){
+					StorkClientActivity.showToast("Press the menu button on keyboard to enable and disable this menu.",false);
+				}
+				if(TreeView.count == 1){
+					StorkClientActivity.context.openOptionsMenu();
+				}
+				if(TreeView.count < 2)
+					TreeView.count++;
 			}
 		});
 		
@@ -84,13 +99,15 @@ public class TreeView {
 		return v;
 	}
 	
+	public boolean isSelected() {
+		return root().selectedChild == this;
+	}
+	
 	public TreeView getChild(int i){
 		if (i == 0) return this;
 		for (TreeView tv: children){
 			int h = tv.height();
-			if (i == h)
-				return tv;
-			if (i < h)
+			if (i <= h)
 				return tv.getChild(i-1);
 			i -= h;
 		} return null;
@@ -116,11 +133,12 @@ public class TreeView {
 	}
 	
 	public URI getURI() {
-		return parent.getURI().resolve("./"+this).normalize();
+		String n = name+(dir ? "/" : "");
+		return parent.getURI().resolve("./"+n).normalize();
 	}
 	
 	public String getCred() {
-		return parent.getCred();
+		return root().getCred();
 	}
 	
 	public void open() {
@@ -140,11 +158,11 @@ public class TreeView {
 	}
 
 	public void refreshData() {
-		parent.refreshData();
+		root().refreshData();
 	}
 	
 	public String toString() {
-		return name+(dir ? "/" : "");
+		return name;
 	}
 
 	public synchronized void asyncFetchChildren() {
@@ -160,15 +178,23 @@ public class TreeView {
 	
 	public Ad fetchChildren() {
 		if (dir) try {
-			Ad listing = fetchListingData();
+			final Ad listing = fetchListingData();
 			fetched = true;
-			createTreeViews(listing);
+			post(new Runnable() {
+				public void run() {
+					createTreeViews(listing);
+				}
+			});
 			return listing;
 		} catch (Exception e) {
 			error = true;
 			StorkClientActivity.showToast(e.getMessage());
 			return new Ad();
 		} return new Ad();
+	}
+
+	public void post(Runnable runnable) {
+		root().post(runnable);
 	}
 
 	private Ad fetchListingData() {
@@ -196,21 +222,19 @@ public class TreeView {
 	
 	// Draw all of the treeviews below this treeview.
 	private void createTreeViews(Ad ad) {
+		children.clear();
 		if (ad.has("files")) for (Ad a : ad.getAds("files")) {
 			boolean is_dir = a.get("dir", "").equals("true");
 			children.add(new TreeView(this, a.get("name"), is_dir));
 		}
+		redraw();
 	}
 	
-	//bubbles up the selected child to TreeViewRoot
-	//Call this when a new child is selected.
-	public void onChecked(TreeView tv){
-		parent.onChecked(tv);
-	}
-	//update the UI
-	public void unselect(){
-		//CheckBox c = (CheckBox) view.findViewById(R.id.check);
-		//c.setSelected(false);
+	public TreeViewRoot root() {
+		return parent.root();
 	}
 	
+	public void redraw() {
+		root().redraw();
+	}
 }

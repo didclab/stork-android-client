@@ -5,6 +5,7 @@ import java.net.URI;
 import stork.ad.Ad;
 import stork.main.R;
 import stork.main.R.id;
+import stork.main.StorkClientActivity;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
@@ -33,6 +34,7 @@ public class TreeViewRoot extends TreeView {
 	}
 	public void redraw() {
 		view.postInvalidate();
+		refreshData();
 	}
 	
 	public String toString() {
@@ -48,8 +50,8 @@ public class TreeViewRoot extends TreeView {
 	}
 	
 	// Initialize the context by creating a root treeview for a URI.
-	public TreeView init(URI uri) {
-		this.uri = URI.create(uri+"/").normalize();
+	public TreeView init(URI u) {
+		uri = u;
 		
 		ListView v = (ListView) view.findViewById(R.id.listview);
 		v.setAdapter(adapter);
@@ -61,6 +63,11 @@ public class TreeViewRoot extends TreeView {
 		// Update the UI.
 		TextView header = (TextView) view.findViewById(R.id.server_header);
 		header.setText(uri.getHost());
+		header.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				StorkClientActivity.showToast(uri.getHost(),false);
+			}
+		});
 
 		ImageButton resetButton = (ImageButton) view.findViewById(R.id.server_header_x);
 		resetButton.setOnClickListener(new View.OnClickListener() {
@@ -73,6 +80,15 @@ public class TreeViewRoot extends TreeView {
 		refreshButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				asyncFetchChildren();
+			}
+		});
+		
+		//testing
+		ImageButton directoryUp = (ImageButton) view.findViewById(R.id.directoryUp);
+		directoryUp.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				System.out.println(uri.resolve(".."));
+				init(uri.resolve(".."));
 			}
 		});
 		
@@ -116,8 +132,16 @@ public class TreeViewRoot extends TreeView {
 		return true;
 	}
 	
+	public int height() {
+		return super.height();
+	}
+	
 	public TreeView getChild(int i) {
 		return super.getChild(i+1);
+	}
+	
+	public void post(Runnable runnable) {
+		lv.post(runnable);
 	}
 	
 	// Reset the list and UI.
@@ -125,13 +149,14 @@ public class TreeViewRoot extends TreeView {
 		selectedChild = null;
 		uri = null;
 		view.findViewById(R.id.serverSelection).setVisibility(View.VISIBLE);
+		children.clear();
+		redraw();
+		fetched = false;
+		fetching = false;
+		error = false;
 	}
 	
-	// select the transferring child; update the current selection.
-	public void onChecked(TreeView tv){
-		if(selectedChild != null && selectedChild != tv){
-			selectedChild.unselect();
-		}
-		selectedChild = tv;
+	public TreeViewRoot root() {
+		return this;
 	}
 }

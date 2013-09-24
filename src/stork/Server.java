@@ -32,7 +32,7 @@ import android.util.Log;
 public class Server {
 	public static String TAG = Server.class.getSimpleName();
 	static volatile int request_count = 1;
-	static URI stork_uri = URI.create("http://didclab-ws4.cse.buffalo.edu:9000");
+	static URI stork_uri = URI.create("http://didclab-ws4.cse.buffalo.edu");
 	public static volatile HttpClient httpclient;
 	public static List<String> credentialKeys = new ArrayList<String>();
 	public static Ad cookie = new Ad();
@@ -61,9 +61,14 @@ public class Server {
 		Map<String, String> map = new HashMap<String, String>();
 
 		for (Map.Entry<Object, AdObject> e : ad.entrySet()) {
+			AdObject o = e.getValue();
 			if (s != null) s = s+"&";
-			else s = "?";
-			s = s+(e.getKey()+"="+URLEncoder.encode(e.getValue().asString()));
+			else s = "";
+			if (o.isAd()) for (Map.Entry<Object, AdObject> ei : o.asAd().entrySet()) {
+				s = s+(e.getKey()+"["+ei.getKey()+"]="+URLEncoder.encode(ei.getValue().asString()));
+			} else {
+				s = s+(e.getKey()+"="+URLEncoder.encode(e.getValue().asString()));
+			}
 		} return s == null ? "" : s;
 	}
 
@@ -107,10 +112,12 @@ public class Server {
 			// Create HTTP request.
 			if (method.equals("GET")) {
 				String s = adToQueryString(ad);
-				Log.v("response from adToQuery", s);
-				System.out.println(s);
-				System.out.println(uri.resolve("."+adToQueryString(ad)));
-				req = new HttpGet(uri.resolve(adToQueryString(ad)));
+				if (s != null && !s.isEmpty()) {
+					if (uri.getQuery() != null)
+						s = uri.getQuery()+"&"+s;
+					uri = uri.resolve("?"+s);
+				}
+				req = new HttpGet(uri);
 			} else if (method.equals("POST")) {
 				/*
 				req = new HttpPost(uri);
@@ -119,7 +126,7 @@ public class Server {
 				*/
 				req = new HttpPost(uri);
 				req.addHeader("Content-Type", "application/x-www-form-urlencoded");
-				((HttpPost) req).setEntity(new StringEntity(adToQueryString(ad).substring(1)));
+				((HttpPost) req).setEntity(new StringEntity(adToQueryString(ad)));
 			} else {
 				throw new RuntimeException("Invalid method: " + method);
 			}
@@ -152,10 +159,10 @@ public class Server {
 	 * @param Why even add Javadocs if no one even updates them.
 	 */
 	@SuppressLint("UseSparseArrays")  // Shut up Eclipse, let me do what I want.
-	public static Map<Integer, Ad> getQueue(String id) {
+	public static Map<Integer, Ad> getQueue() {
 		try {
 			Map<Integer, Ad> map = new HashMap<Integer, Ad>();
-			Ad ad = sendRequest("/api/stork_q");
+			Ad ad = sendRequest("/api/stork/q?status=all");
 			for (Entry<Object, AdObject> e : ad.entrySet()) {
 				Ad a = e.getValue().asAd();
 				map.put(a.getInt("job_id"), a);
@@ -170,7 +177,7 @@ public class Server {
 	 */
 	public static String sendJobCancelRequest(Long id) {
 		try {
-			return sendRequest("/api/stork_rm", new Ad("job_id", id), "POST").toString();
+			return sendRequest("/api/stork/rm", new Ad("job_id", id), "POST").toString();
 		} catch (Exception e) {
 			Log.v("Server - Job Cancel Request", e.toString());
 			return null;
@@ -189,7 +196,7 @@ public class Server {
 			opts = new Ad();
 		opts.put("uri", tv.getURI().toASCIIString());
 		opts.put("cred", tv.getCred());
-		opts.put("depth", 0);
-		return sendRequest("/api/stork_ls", opts);
+		opts.put("depth", 1);
+		return sendRequest("/api/stork/ls", opts);
 	}
 }

@@ -29,10 +29,10 @@ public class SendDAPFileTask extends AsyncTask<Void, Void, Ad> {
 	public Ad execute() {
 		Log.v(getClass().getSimpleName(), "Sending job file...");
 
-		Ad ad = new Ad("src.uri",   to.getURI().toASCIIString())
-		          .put("src.cred",  to.getCred())
-		          .put("dest.uri",  from.getURI().toASCIIString())
-		          .put("dest.cred", from.getCred());
+		Ad ad = new Ad("src.uri",   from.getURI().toASCIIString())
+		          .put("src.cred",  from.getCred())
+		          .put("dest.uri",  to.getURI().toASCIIString())
+		          .put("dest.cred", to.getCred());
 		return Server.sendRequest("/api/stork_submit", ad, "POST");
 	}
  }

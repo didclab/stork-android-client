@@ -24,10 +24,10 @@
          android:icon="@drawable/config">
      </item>
      
-     <item
-         android:id="@+id/select"
+  <!--   <item
+        android:id="@+id/select"
          android:title="Select File"
          android:icon="@drawable/file">
-     </item>
+     </item> -->
     
 </menu>

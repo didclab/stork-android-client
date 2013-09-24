@@ -1,6 +1,7 @@
 package stork;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -21,13 +22,6 @@ import android.widget.Toast;
 import stork.adapter.ProgressListAdapter;
 import stork.framework.ProgressView;
 
-/**
- * Activity to see all the different job progress activities and further options
- * accordingly
- * 
- * @author Rishi
- * 
- */
 public class JobProgressActivity extends Activity  {
 	ArrayAdapter<ProgressView> adapter;
 	ListView lv;
@@ -40,6 +34,13 @@ public class JobProgressActivity extends Activity  {
 			super.onCreate(savedInstanceState);
 			this.setContentView(R.layout.progressrow);
 			adapter = new ProgressListAdapter(this, new ArrayList<ProgressView>(), R.layout.rowprogresslayout);
+			
+			adapter.sort(new Comparator<ProgressView>() {
+			    public int compare(ProgressView arg0, ProgressView arg1) {
+			        return arg0.getJobID().compareTo(arg1.getJobID());
+			    }
+			});
+			
 			adapter.setNotifyOnChange(true);
 			getData(adapter);
 
@@ -48,9 +49,8 @@ public class JobProgressActivity extends Activity  {
 
 
 			Toast.makeText(getApplicationContext(), "Touch Job ID for Details, Cancel or Remove Job", Toast.LENGTH_LONG).show();
-
+			
 			timer = new Timer();
-
 			timer.scheduleAtFixedRate(new TimerTask(){
 
 				public void run()
@@ -72,7 +72,6 @@ public class JobProgressActivity extends Activity  {
 						Log.v(getLocalClassName(), e.toString());
 					}
 				}
-
 			}, 1000,1000);
 		}
 		catch(Exception e)
@@ -149,10 +148,10 @@ public class JobProgressActivity extends Activity  {
 		//dbHelper.close();
 
 		// Get the listing from Stork.\
-		adapter.clear(); //added by Sonali Batra
+		adapter.clear(); 
 		try
 		{
-			Map<Integer, Ad> queue = Server.getQueue("all");
+			Map<Integer, Ad> queue = Server.getQueue();
 
 			if (queue == null)
 				return;
@@ -161,6 +160,7 @@ public class JobProgressActivity extends Activity  {
 
 			// For everything in the map, put ProgressView in list. 
 			for (Ad ad : queue.values()) {
+				Log.v("insert", "getData");
 				Ad prog = ad.getAd("progress.bytes");
 				int d = -1;
 
@@ -177,7 +177,7 @@ public class JobProgressActivity extends Activity  {
 
 				// Parse progress.
 				if (prog != null && prog.getInt("total") > 0)
-					d = 100*prog.getInt("done") / prog.getInt("total");
+					d = (int)(100*prog.getDouble("done") / prog.getDouble("total"));
 				if (d > 100) d = 100;
 
 				// Insert status into list.
@@ -202,6 +202,7 @@ public class JobProgressActivity extends Activity  {
 			Log.v(getLocalClassName(), e.toString());
 		}
 	}
+	
 
 	@Override
 	public void onPause(){
@@ -215,51 +216,4 @@ public class JobProgressActivity extends Activity  {
 			Log.v(getLocalClassName(), e.toString());
 		}
 	}
-
-	//	public class RemindTask extends TimerTask
-	//	{
-	//		public void run()
-	//		{
-	//			try
-	//			{
-	//				new timerThread().execute("");
-	//			}
-	//			catch(Exception e)
-	//			{
-	//				Log.v(getLocalClassName(), e.toString());
-	//			}
-	//		}
-	//	}
-
-	//	public class timerThread extends AsyncTask<String,Void,String>
-	//	{
-	//		@Override
-	//		protected String doInBackground(String... params) {
-	//			// TODO Auto-generated method stub
-	//			return null;
-	//		//	return "";
-	//		}
-	//		
-	//		@Override
-	//        protected void onPostExecute(String result) {
-	//			try
-	//			{
-	//				
-	//			}
-	//			catch(Exception e)
-	//			{
-	//				Log.v(getLocalClassName(), e.toString());
-	//			}
-	//        }
-	//
-	//        @Override
-	//        protected void onPreExecute() {
-	//        }
-	//
-	//        @Override
-	//        protected void onProgressUpdate(Void... values) {
-	//        }
-	//		
-	//	}
-
 }

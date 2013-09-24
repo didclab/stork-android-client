@@ -50,6 +50,16 @@
             android:background="#00000000"
             android:contentDescription="To Force Refresh"
             android:src="@drawable/refresh_small" />
+      
+      <!-- Below ImageView added to hold a  -->
+        <ImageButton
+        	android:id="@+id/directoryUp"
+        	android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+        	android:contentDescription="Back"
+        	android:src="@drawable/folder_up" />
+        	 
     </LinearLayout>
 
     <ListView
