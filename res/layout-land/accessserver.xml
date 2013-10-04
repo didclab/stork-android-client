@@ -7,13 +7,13 @@
     android:orientation="vertical"
     android:padding="10dip" >
 
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/serverName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/servername"
         android:text="didclab-ws9" >
-    </EditText>
+    </AutoCompleteTextView>
 
     <EditText
         android:id="@+id/serverPath"

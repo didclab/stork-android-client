@@ -8,11 +8,11 @@
     android:stretchColumns="1" >
 
     <include
-        android:id="@+id/right"
-        layout="@layout/listing" />
-
-    <include
         android:id="@+id/left"
+        layout="@layout/listing" />
+    
+     <include
+        android:id="@+id/right"
         layout="@layout/listing" />
 
 </LinearLayout>

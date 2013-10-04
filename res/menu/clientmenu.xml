@@ -1,30 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <item
+ <!--<item
         android:id="@+id/transfer12"
         android:icon="@drawable/arrow_left"
-        android:title="Transfer Files"/>
+        android:title="Transfer Files"/>  
     <item
         android:id="@+id/transfer21"
         android:icon="@drawable/arrow_right"
-        android:title="Transfer Files"/>
+        android:title="Transfer Files"/> -->
+        
+    <item 
+        android:id="@+id/refresh"
+        android:title="Refresh" 
+        android:icon="@drawable/arrow_refresh">
+    	<menu>
+	         <item 
+    	     	android:id="@+id/refresh1"
+        	 	android:title="Refresh Left Server"
+        	 	android:icon="@drawable/arrow_refresh"
+        	 	/> 
+        	 <item
+    	     	android:id="@+id/refresh2"
+        	 	android:title="Refresh Right Server"
+        	 	android:icon="@drawable/arrow_refresh"
+        	 	/> 	
+        	 <item
+    	     	android:id="@+id/refreshBoth"
+        	 	android:title="Refresh both Servers"
+        	 	android:icon="@drawable/arrow_refresh"
+        	 	/> 		
+         </menu>    
+    </item>
+        
     <item
         android:id="@+id/progress"
         android:title="Get Progress"
         android:icon="@drawable/chart_bar"/>
      <item
         android:id="@+id/disconnectAll"
-        android:title="Disconnect All"
-        android:icon="@drawable/gtk_disconnect"/>
+        android:title="Disconnect"
+        android:icon="@drawable/gtk_disconnect">
+        <menu>
+	         <item 
+    	     	android:id="@+id/Dserver1"
+        	 	android:title="Disconnect Left Server"
+        	 	android:icon="@drawable/x"
+        	 	/> 
+        	 <item
+    	     	android:id="@+id/Dserver2"
+        	 	android:title="Disconnect Right Server"
+        	 	android:icon="@drawable/x"
+        	 	/> 	
+        	  <item
+    	     	android:id="@+id/DserverBoth"
+        	 	android:title="Disconnect both Servers"
+        	 	android:icon="@drawable/x"
+        	 	/> 		
+         </menu>
+      </item>
      
      <item
          android:id="@+id/config"
          android:title="Config"
          android:icon="@drawable/config">
      </item>
-     
-  <!--   <item
+  <!-- This needs to set up when we wanna trasfer a file from local phone to the stork cloud   
+  <item
         android:id="@+id/select"
          android:title="Select File"
          android:icon="@drawable/file">

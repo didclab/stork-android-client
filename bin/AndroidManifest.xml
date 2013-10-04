@@ -12,47 +12,46 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application android:icon="@drawable/stork_icon" >
         <activity
             android:name="stork.main.StorkClientActivity"
             android:label="@string/app_name"
-             android:launchMode="singleInstance"
             android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name="stork.JobProgressActivity"
             android:label="@string/jobprogress"
-            android:launchMode="singleInstance"
             android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name="stork.Configuration"
             android:label="@string/config"
-            android:launchMode="singleInstance"
             android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name="stork.SelectCredential"
             android:label="@string/ProtocolS"
-            android:launchMode="singleInstance"
             android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name="stork.Login"
             android:label="MyProxy Details"
-            android:launchMode="singleInstance"
+            android:screenOrientation="landscape" >
+        </activity>
+         <activity
+            android:name="stork.main.Register"
+            android:label="Register"
             android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name="stork.ConnectForm"
-            android:label="Create Connection"
-            android:launchMode="singleInstance"
+            android:label="Connect to..."
             android:screenOrientation="landscape" >    
         </activity>
         <activity android:name="stork.main.StartupClass"
             android:label="Stork"
-            android:launchMode="singleInstance"
             android:screenOrientation="landscape">
                <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

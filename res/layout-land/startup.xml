@@ -27,27 +27,27 @@
           />
 
      <Button
-         android:id="@+id/StartupSubmit"
+         android:id="@+id/StartupRegister"
          android:layout_width="100dp"
          android:layout_height="wrap_content"
          android:layout_alignParentRight="true"
          android:layout_below="@+id/getPassword"
-         android:text="Submit" />
+         android:text="Register" />
 
      <Button
-         android:id="@+id/StartupRegister"
+         android:id="@+id/StartupSubmit"
          android:layout_width="100dp"
          android:layout_height="wrap_content"
          android:layout_alignLeft="@+id/getPassword"
          android:layout_below="@+id/getPassword"
-         android:text="Register" />
+         android:text="SignIn" />
 
      <CheckBox
          android:id="@+id/rememberMe"
          android:layout_width="wrap_content"
          android:layout_height="wrap_content"
-         android:layout_alignLeft="@+id/StartupRegister"
-         android:layout_below="@+id/StartupSubmit"
+         android:layout_alignLeft="@+id/StartupSubmit"
+         android:layout_below="@+id/StartupRegister"
          android:text="Remember me" />
     
 </RelativeLayout>

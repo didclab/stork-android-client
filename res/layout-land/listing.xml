@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:stretchColumns="1" >
 
-    <Button
+     <Button
         android:id="@+id/serverSelection"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -18,47 +18,66 @@
         android:textColor="#ffffffff"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:typeface="sans" />
+        android:typeface="sans" /> 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:orientation="horizontal" >
-
-        <TextView
-            android:id="@+id/server_header"
+        
+         <TextView
+            android:id="@+id/server_header_left"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
-            android:layout_weight="2"
+            android:layout_weight="1"
+            android:visibility="invisible"
             android:text="@string/source"
-            android:textSize="25sp" />
-
-        <ImageButton
-            android:id="@+id/server_header_x"
+            android:textSize="18sp" />
+         <ImageButton
+            android:id="@+id/transfer12"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="#00000000"
-            android:contentDescription="To Restart Server"
-            android:src="@drawable/x" />
-
-        <ImageButton
-            android:id="@+id/server_refresh"
+            android:layout_weight="0"
+            android:contentDescription="Transfer12"
+            android:visibility="invisible"
+            android:src="@drawable/arrow_right" />
+        
+         <ImageButton
+            android:id="@+id/transfer21"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:contentDescription="Transfer21"
+            android:visibility="invisible"
+            android:src="@drawable/arrow_left" />
+        
+          <TextView
+            android:id="@+id/dummy"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
             android:layout_weight="1"
-            android:background="#00000000"
-            android:contentDescription="To Force Refresh"
-            android:src="@drawable/refresh_small" />
+            android:visibility="invisible"
+            android:text="@string/source"
+            android:textSize="18sp" />
+         
+           <TextView
+            android:id="@+id/server_header_right"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            android:visibility="invisible"
+            android:text="@string/source"
+            android:textSize="18sp" />
+        
       
-      <!-- Below ImageView added to hold a  -->
+      <!-- Below ImageView added to hold a  
         <ImageButton
         	android:id="@+id/directoryUp"
         	android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
         	android:contentDescription="Back"
-        	android:src="@drawable/folder_up" />
+        	android:src="@drawable/folder_up" /> -->
         	 
     </LinearLayout>
 

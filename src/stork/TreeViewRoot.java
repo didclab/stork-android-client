@@ -55,43 +55,66 @@ public class TreeViewRoot extends TreeView {
 		
 		ListView v = (ListView) view.findViewById(R.id.listview);
 		v.setAdapter(adapter);
-
 		// Update the list. This may throw.
 		fetchChildren();
 		adapter.notifyDataSetChanged();
 		
 		// Update the UI.
-		TextView header = (TextView) view.findViewById(R.id.server_header);
-		header.setText(uri.getHost());
-		header.setOnClickListener(new View.OnClickListener() {
+		ImageButton transfer12 = (ImageButton) view.findViewById(R.id.transfer12);
+		transfer12.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				StorkClientActivity.showToast(uri.getHost(),false);
+				StorkClientActivity.context.makeTransfer(StorkClientActivity.lc[0], StorkClientActivity.lc[1]);
 			}
 		});
 
-		ImageButton resetButton = (ImageButton) view.findViewById(R.id.server_header_x);
-		resetButton.setOnClickListener(new View.OnClickListener() {
+		ImageButton transfer21 = (ImageButton) view.findViewById(R.id.transfer21);
+		transfer21.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				reset();
+				StorkClientActivity.context.makeTransfer(StorkClientActivity.lc[1], StorkClientActivity.lc[0]);
 			}
 		});
+		TextView left_header = (TextView) view.findViewById(R.id.server_header_left);
+		TextView right_header = (TextView) view.findViewById(R.id.server_header_right);
+		TextView dummy = (TextView) view.findViewById(R.id.dummy);//for spacing out the "->" on GUI
+		
+		
+		if(side.equals("left")) {
+			left_header.setText(uri.toASCIIString());
+			left_header.setVisibility(View.VISIBLE);
+			transfer21.setVisibility(View.GONE);
+			transfer12.setVisibility(View.VISIBLE);
+			dummy.setVisibility(View.GONE);
+			right_header.setVisibility(View.GONE);
+			left_header.setOnClickListener(new View.OnClickListener() {
+				public void onClick(View v) {
+					StorkClientActivity.showToast(uri.getHost(),false);
+				}
+			});
+			
+		}
+		else{
+			right_header.setText(uri.toASCIIString());
+			right_header.setVisibility(View.VISIBLE);
+			transfer12.setVisibility(View.GONE);
+			transfer21.setVisibility(View.VISIBLE);
+			left_header.setVisibility(View.GONE);
+			dummy.setVisibility(View.INVISIBLE);
+			right_header.setOnClickListener(new View.OnClickListener() {
+				public void onClick(View v) {
+					StorkClientActivity.showToast(uri.getHost(),false);
+				}
+			});
+		}
+		
+//		ImageButton directoryUp = (ImageButton) view.findViewById(R.id.directoryUp);
+//		directoryUp.setOnClickListener(new View.OnClickListener() {
+//			public void onClick(View v) {
+//				System.out.println(uri.resolve(".."));
+//	
+//				init(uri.resolve(".."));
+//			}
+//		});
 
-		ImageButton refreshButton = (ImageButton) view.findViewById(R.id.server_refresh);
-		refreshButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				asyncFetchChildren();
-			}
-		});
-		
-		//testing
-		ImageButton directoryUp = (ImageButton) view.findViewById(R.id.directoryUp);
-		directoryUp.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				System.out.println(uri.resolve(".."));
-				init(uri.resolve(".."));
-			}
-		});
-		
 		view.findViewById(R.id.serverSelection).setVisibility(View.GONE);
 		return this;
 	}
@@ -110,6 +133,9 @@ public class TreeViewRoot extends TreeView {
 			}
 
 			public View getView(int position, View convertView, ViewGroup parent) {
+				if(position == 0){
+					Log.v("positiion = 0", "");
+				}
 				TreeView tv = getItem(position);
 				if (tv == null)
 					return null;
@@ -159,4 +185,9 @@ public class TreeViewRoot extends TreeView {
 	public TreeViewRoot root() {
 		return this;
 	}
+	public static void redrawEverything(URI uri){
+
+	}
+	
+	
 }

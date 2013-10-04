@@ -33,6 +33,6 @@ public class SendDAPFileTask extends AsyncTask<Void, Void, Ad> {
 		          .put("src.cred",  from.getCred())
 		          .put("dest.uri",  to.getURI().toASCIIString())
 		          .put("dest.cred", to.getCred());
-		return Server.sendRequest("/api/stork_submit", ad, "POST");
+		return Server.sendRequest("/api/stork/submit", ad, "POST");
 	}
  }

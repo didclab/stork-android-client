@@ -45,6 +45,7 @@ public class StorkClientActivity extends Activity {
 	public static TreeViewRoot[] lc = { null, null };
 	boolean dapConfirmResponse = false;
 	public static String cert_path = null;
+	private Menu menu;
 	public static PrefetchThread[] pac;
 	public static int countOfThreads = 5;
 	File mPath = new File(Environment.getExternalStorageDirectory() + "/"+"Stork");
@@ -66,6 +67,7 @@ public class StorkClientActivity extends Activity {
 	/** Called when the activity is first created. */
 	@SuppressWarnings("resource")
 	public void onCreate(Bundle icicle) {
+		try{
 		super.onCreate(icicle);
 		setContentView(R.layout.bothlists);
 
@@ -132,6 +134,10 @@ public class StorkClientActivity extends Activity {
 			else 				Log.e(getClass().getSimpleName(), "Certificate Dir Not Created!");//getSimplename jus returns the name of the class
 
 		}
+		}//end of try
+	catch(Exception e){
+		Log.v("Error in StorkClientActivity",e.getMessage());
+	}
 	}
 
 	/**
@@ -153,15 +159,33 @@ public class StorkClientActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection
 		switch (item.getItemId()) {
-		case R.id.transfer21:
-			return makeTransfer(lc[1], lc[0]);
-		case R.id.transfer12:
-			return makeTransfer(lc[0], lc[1]);
+//		case R.id.transfer21:
+//			return makeTransfer(lc[1], lc[0]);
+//		case R.id.transfer12:
+//			return makeTransfer(lc[0], lc[1]);
 		case R.id.progress:
 			Intent getProgressIntent = new Intent(getApplicationContext(), JobProgressActivity.class);
 			startActivityForResult(getProgressIntent, 0);
 			return true;
 		case R.id.disconnectAll:
+			Log.v("disconnect", "All");
+//			MenuItem _item = menu.getItem(2);
+//			Menu submenu = _item.getSubMenu();
+//			MenuItem item2 =submenu.findItem(R.id.Dserver1);
+//			if(lc[0].root()!= null) item2.setTitle("Disconnect server1 : "+lc[0].root().toString());
+//			if(lc[1].root()!= null) menu.getItem(2).getSubMenu().findItem(R.id.Dserver2).setTitle("Disconnect server2 : "+lc[1].root().toString());
+			//
+			//if(lc[1]!=null) menu.findItem(R.id.Dserver2).setTitle(lc[1].root().toString());
+			return true;
+		case R.id.Dserver1 : 
+			Log.v("server 1", "Dserver1");
+			lc[0].reset();
+			return true;
+		case R.id.Dserver2 : 
+			Log.v("server 2", "Dserver2");
+			lc[1].reset();
+			return true;	
+		case R.id.DserverBoth :
 			Intent i = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
 			i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
 					| Intent.FLAG_ACTIVITY_NEW_TASK
@@ -201,7 +225,7 @@ public class StorkClientActivity extends Activity {
 	 * @param serverTo
 	 * @return
 	 */
-	private boolean makeTransfer(TreeViewRoot fromRoot, TreeViewRoot toRoot) { //ListView serverfrom and serverto
+	public boolean makeTransfer(TreeViewRoot fromRoot, TreeViewRoot toRoot) { //ListView serverfrom and serverto
 		//if the user doesn't enter any credentials of servers to which this app should connect
 		TreeView from = fromRoot.selectedChild;
 		TreeView to = toRoot.selectedChild;
@@ -211,11 +235,11 @@ public class StorkClientActivity extends Activity {
 			return false;
 		}
 		//if the user misses to select a directory on one of the sides then transfer to the path set on the login page.
-		if (from != null || to == null) {
+		if (from != null && to == null) {
 			
 			to = toRoot;//how to acces
 		}
-		if (from == null || to != null) {
+		if (from == null && to != null) {
 			from = fromRoot;
 		}
 		//perform validation 
@@ -272,4 +296,10 @@ public class StorkClientActivity extends Activity {
         }
         return false;
 	}
+	
+	@Override
+	protected void onRestart(){
+		super.onRestart();
+	}
+	
 }

@@ -20,8 +20,6 @@ public class OnJobProgressClickListener implements View.OnClickListener{
 		this.pla = pla;
 		this.progress = progress;
 	}
-
-	
 	public void onClick(View v) {
         AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
         builder.setTitle("Job ID : " + id);

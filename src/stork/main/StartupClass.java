@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -19,13 +20,13 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class StartupClass extends Activity {
-
 	public static StartupClass context = null;
 	    private SharedPreferences loginPreferences;
 	    private SharedPreferences.Editor loginPrefsEditor;
 	    private Boolean saveLogin;
 	   
 	protected void onCreate(Bundle savedInstanceState) {
+		try{
 		context = this;
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.startup);
@@ -93,32 +94,22 @@ public class StartupClass extends Activity {
 					}
 				}
 			});
-
 			Button registerButton = (Button) findViewById(R.id.StartupRegister);
 			registerButton.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
-					StartupClass context = StartupClass.this;
-					String user = username.getText().toString();
-					String pass = password.getText().toString();
-					try {
-						if (validate(user, pass)) {
-							Ad ad = new Ad("user_id", user);
-							ad.put("password", pass);
-							ad.put("action", "register");
-							Thread t = asyncFetchCookie(ad);
-							t.run();
-							Intent intent = new Intent(context,
-									StorkClientActivity.class);
-							startActivity(intent);
-						}
-					} catch (Exception e) {
-						showToast(e.getMessage());
-					}
+					Intent intent = new Intent(context,
+							Register.class);
+					startActivity(intent);	
 				}
 			});
 		}// end of else
+		
+	}//end of try
+	catch(Exception e){
+		Log.v("Error", e.getMessage());
 	}
-
+	
+	}
 	private Thread asyncFetchCookie(final Ad ad) {
 		return new Thread() {
 			public void run() {
@@ -132,9 +123,6 @@ public class StartupClass extends Activity {
 			}
 		};
 	}
-	
-	
-
 	private boolean validate(String user, String pass) {
 		if (user.length() > 0 && pass.length() >= 6) {
 			return true;
@@ -164,15 +152,15 @@ public class StartupClass extends Activity {
                     {
                         return true;
                     }
-
+            NetworkInfo result = connectivity.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+            	if (result != null && result.isConnectedOrConnecting());
+            		return true;
         }
         return false;
   }
-
 	private static void showToast(String s) {
 		Toast.makeText(context, s, Toast.LENGTH_LONG).show();
 	}
-
 	protected void alertbox(String title, String mymessage) {
 		new AlertDialog.Builder(this)
 				.setMessage(mymessage)
@@ -185,11 +173,39 @@ public class StartupClass extends Activity {
 							}
 						}).show();
 	}
+	@Override
 	protected void onResume(){
 		super.onResume();
 		if (!isNetworkAvailable()) {
 			Log.v("inside", "Network unavailable");
 			alertbox("Network problem", "Network unavailable");
 		}
+		
 	}
+
+	@Override
+	protected void onRestart(){
+		Log.v("Restart", "Called");
+		super.onRestart();
+	}
+	
+	@Override
+	protected void onStop(){
+		Log.v("Stop", "Called");
+		super.onStop();
+	}
+	
+	@Override
+	protected void onPause(){
+		Log.v("Pause", "Called");
+		super.onPause();
+	}
+
+//	protected void onDestroy(){
+//		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+//		PowerManager.WakeLock wakeLock = pm.newWakeLock(
+//		        pm.SCREEN_DIM_WAKE_LOCK, "My wakelook");
+//		wakeLock.acquire(1000);
+//		wakeLock.release();
+//	}
 }

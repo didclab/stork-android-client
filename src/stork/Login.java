@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 public class Login extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
+		try{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.login);
 
@@ -48,5 +49,10 @@ public class Login extends Activity {
 				}
 			}
 		});
+	}//end of try
+	catch(Exception e){
+		Log.v("Error", e.toString());
+	}
+		
 	}
 }

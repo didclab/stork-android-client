@@ -20,6 +20,7 @@ import ch.boye.httpclientandroidlib.params.*;
 import ch.boye.httpclientandroidlib.util.EntityUtils;
 
 import stork.ad.*;
+import stork.main.StorkClientActivity;
 import android.annotation.SuppressLint;
 import android.util.Log;
 
@@ -65,7 +66,7 @@ public class Server {
 			if (s != null) s = s+"&";
 			else s = "";
 			if (o.isAd()) for (Map.Entry<Object, AdObject> ei : o.asAd().entrySet()) {
-				s = s+(e.getKey()+"["+ei.getKey()+"]="+URLEncoder.encode(ei.getValue().asString()));
+				s = s+(e.getKey()+"."+ei.getKey()+"="+URLEncoder.encode(ei.getValue().asString()));
 			} else {
 				s = s+(e.getKey()+"="+URLEncoder.encode(e.getValue().asString()));
 			}
@@ -133,6 +134,7 @@ public class Server {
 
 			// Send request.
 			Log.v("URI = " + method, req.getURI().toString());
+			Log.v("URI = " + method, req.toString());
 			resp = hc.execute(req);
 			Log.v("Response", resp.toString());
 			// Check that response was positive.
@@ -149,6 +151,7 @@ public class Server {
 			throw e;
 		} catch (Exception e) {
 			Log.v(TAG + " sendRequest", e.toString());
+			StorkClientActivity.showToast(e.getMessage(), true);
 			throw new RuntimeException(e);
 		}
 	}

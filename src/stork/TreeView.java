@@ -30,7 +30,6 @@ public class TreeView {
 	public boolean fetching = false;
 	public boolean fetched = false;
 	public boolean error = false;
-	static int count = 0; 
 
 	public TreeView(TreeView parent, String name, boolean dir) {
 		this.parent = parent;
@@ -71,21 +70,14 @@ public class TreeView {
 				else if (!isSelected() && isChecked)
 					root().selectedChild = TreeView.this;
 				redraw();
-				
-				if(TreeView.count == 0){
-					StorkClientActivity.showToast("Press the menu button on keyboard to enable and disable this menu.",false);
-				}
-				if(TreeView.count == 1){
-					StorkClientActivity.context.openOptionsMenu();
-				}
-				if(TreeView.count < 2)
-					TreeView.count++;
 			}
 		});
 		
 		v.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				try {
+					Log.v("View clicked", v.toString());
+					
 					toggle();
 					v.performHapticFeedback(VIRTUAL_KEY);
 				} catch (Exception e) {
@@ -140,12 +132,18 @@ public class TreeView {
 	public String getCred() {
 		return root().getCred();
 	}
-	
 	public void open() {
 		setOpen(true);
 	} public void close() {
 		setOpen(false);
 	} public void toggle() {
+		if(this.name.equals("..")){
+			//call init by changing the uri
+				Log.v("value of root", this.root().toString());
+				TreeViewRoot dummyRoot = this.root();
+				dummyRoot.init(dummyRoot.getURI().resolve(".."));
+				refreshData();
+		}
 		setOpen(!open);
 	} public void setOpen(boolean v) {
 		open = v;
@@ -156,7 +154,6 @@ public class TreeView {
 	} public boolean isOpen() {
 		return dir && open;
 	}
-
 	public void refreshData() {
 		root().refreshData();
 	}
@@ -225,6 +222,7 @@ public class TreeView {
 		children.clear();
 		if (ad.has("files")) for (Ad a : ad.getAds("files")) {
 			boolean is_dir = a.get("dir", "").equals("true");
+			if(this == root() && children.size() == 0) children.add(new TreeView(this, "..", true));
 			children.add(new TreeView(this, a.get("name"), is_dir));
 		}
 		redraw();

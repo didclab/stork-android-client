@@ -1,17 +1,18 @@
 package stork;
 
+import static android.view.HapticFeedbackConstants.VIRTUAL_KEY;
+
 import java.net.URI;
 
 import stork.main.R;
 import stork.main.StorkClientActivity;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import static android.view.HapticFeedbackConstants.VIRTUAL_KEY;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -23,10 +24,21 @@ public class ConnectForm extends Activity {
 		String s = ((TextView) findViewById(id)).getText().toString().trim();
 		return s.isEmpty() ? null : s;
 	}
+	private static final String[] COUNTRIES = new String[] {
+		"didclab-ws4", "didclab-ws9"
+		};
+
 	
 	protected void onCreate(Bundle savedInstanceState) {
+		try{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.accessserver);
+
+		ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this,
+					android.R.layout.simple_dropdown_item_1line, COUNTRIES);
+		AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.serverName);
+		textView.setAdapter(adapter1);	
+		
 		final Spinner mySpinner = (Spinner) findViewById(R.id.spinner1);
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(
 				this, android.R.layout.simple_spinner_item, Server.credentialKeys);
@@ -73,8 +85,24 @@ public class ConnectForm extends Activity {
 				//finish();
 			}
 		});
-//http://128.205.39.40:9000/api/stork_ls?uri=ftp://didclab-ws9:21/&depth=0
-		// Set the click listener for the credential picker.
+	}//end of try
+	catch(Exception e){
+		e.printStackTrace();
+		Log.v("Error on ConnectForm", e.toString());
+	}
 	}//end of OnCreate
 	
+	@Override
+	protected void onRestart(){
+		super.onRestart();
+	}
+	
+	@Override
+	protected void onStop(){
+		super.onStop();
+	}
 }
+
+
+
+

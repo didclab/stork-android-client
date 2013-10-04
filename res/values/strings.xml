@@ -7,20 +7,23 @@
     <string name="protocol">Protocol</string>
     <string name="password">Password</string>
     <string name="username">UserName</string>
+    <string name="firstname">FirstName</string>
+    <string name="lastname">LastName</string>
     <string name="port">Port</string>
     <string name="servername">serverName</string>
     <string name="source">eric1</string>
     <string name="destination">max3</string>
-    <string name="login">Login</string>
-    <string name="config">Configuration</string>
-    <string name="Add_Credential">Add Credential</string>
+    <string name="login">Stork/Login</string>
+    <string name="config">Stork/Configuration</string>
+    <string name="Add_Credential">Stork/Add Credential</string>
     <string name="server_one">server_one</string>
     <string name="server_two">server_two</string>
     <string name="jobid">JobID</string>
-    <string name="jobprogress">Job Progress</string>
+    <string name="jobprogress">Stork/Job Progress</string>
     <string name="blank"></string>
     <string name="icon_description">icon for folder or file</string>
     <string name="serverpath">./path/to/dir</string>
+     <string name="register">Stork/Register</string>
 
     <string name="cred_prompt">Choose a Credential</string>
     <string name="Login">Login</string>

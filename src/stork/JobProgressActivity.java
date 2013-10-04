@@ -58,7 +58,6 @@ public class JobProgressActivity extends Activity  {
 					try
 					{
 						runOnUiThread(new  Runnable() {
-
 							public void run() {
 								System.out.println("running...");
 								getData(adapter);
@@ -206,14 +205,10 @@ public class JobProgressActivity extends Activity  {
 
 	@Override
 	public void onPause(){
-		try
-		{
 			super.onPause();
-			finish();
-		}
-		catch(Exception e)
-		{
-			Log.v(getLocalClassName(), e.toString());
-		}
+	}
+	@Override
+	public void onRestart(){
+			super.onRestart();
 	}
 }
