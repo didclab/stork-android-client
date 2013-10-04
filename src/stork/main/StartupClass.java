@@ -35,7 +35,7 @@ public class StartupClass extends Activity {
 			alertbox("Network problem", "Network unavailable");
 			return;
 		} else {
-			final EditText username = (EditText) findViewById(R.id.getUserName);
+			final EditText email = (EditText) findViewById(R.id.getEmail);
 			final EditText password = (EditText) findViewById(R.id.getPassword);
 			final CheckBox rememberMe = (CheckBox) findViewById(R.id.rememberMe);
 			loginPreferences = getSharedPreferences("loginPrefs", MODE_PRIVATE);
@@ -43,8 +43,8 @@ public class StartupClass extends Activity {
 	        
 	        saveLogin = loginPreferences.getBoolean("saveLogin", false);
 	        if (saveLogin) {
-	        	String user = loginPreferences.getString("username", "");
-	            username.setText(user);
+	        	String user = loginPreferences.getString("email", "");
+	            email.setText(user);
 	            password.setText("somerandom");
 	            String cookie = loginPreferences.getString("cookie", "");
 	            if(!cookie.equals("")){
@@ -56,13 +56,12 @@ public class StartupClass extends Activity {
 			submitButton.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
 					StartupClass context = StartupClass.this;
-					String user = username.getText().toString();
+					String user = email.getText().toString();
 					String pass = password.getText().toString();
 					try {
 						//first time when the user logs in.
 						if (validate(user, pass) && !saveLogin) {
-							Ad ad = new Ad("user_id", user);
-							ad.put("password", pass);
+							Ad ad = new Ad("email", user).put("password", pass);
 							Thread t;
 							t = asyncFetchCookie(ad);
 							t.run();
@@ -80,7 +79,7 @@ public class StartupClass extends Activity {
 						}
 						if (rememberMe.isChecked()) {
 			                loginPrefsEditor.putBoolean("saveLogin", true);
-			                loginPrefsEditor.putString("username", user);
+			                loginPrefsEditor.putString("email", user);
 			                loginPrefsEditor.putString("cookie", Server.cookie.toString());
 			                loginPrefsEditor.commit();
 			            } else {
@@ -98,11 +97,11 @@ public class StartupClass extends Activity {
 			registerButton.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
 					StartupClass context = StartupClass.this;
-					String user = username.getText().toString();
+					String user = email.getText().toString();
 					String pass = password.getText().toString();
 					try {
 						if (validate(user, pass)) {
-							Ad ad = new Ad("user_id", user);
+							Ad ad = new Ad("email", user);
 							ad.put("password", pass);
 							ad.put("action", "register");
 							Thread t = asyncFetchCookie(ad);
@@ -123,8 +122,7 @@ public class StartupClass extends Activity {
 		return new Thread() {
 			public void run() {
 				try {
-					Server.cookie = Server.sendRequest("/api/stork/user", ad,
-							"POST").remove("pass_salt");
+					Server.cookie = Server.sendRequest("/api/stork/user", ad, "POST");
 					Log.v("Cookie", Server.cookie.toString());
 				} catch (final Exception e) {
 					throw new RuntimeException(e.getMessage());
@@ -140,14 +138,14 @@ public class StartupClass extends Activity {
 			return true;
 		} else {
 			if (user.length() == 0) {
-				showToast("Invalid user Name");
+				showToast("Invalid email");
 				return false;
 			}
 			if (pass.length() < 6) {
 				showToast("Password should be more than or equal to 6 letters");
 				return false;
 			} else {
-				showToast("UserName or Password combination is invalid");
+				showToast("Email or Password combination is invalid");
 				return false;
 			}
 		}

@@ -107,7 +107,7 @@ public class Server {
 		HttpResponse resp;
 		
 		try {
-			ad = ad.merge(cookie);
+			ad = ad.put("user", cookie);
 			
 			// Create HTTP request.
 			if (method.equals("GET")) {
