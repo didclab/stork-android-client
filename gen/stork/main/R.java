@@ -64,8 +64,8 @@ public final class R {
         public static final int disconnectAll=0x7f070040;
         public static final int dummy=0x7f07001c;
         public static final int email=0x7f070025;
+        public static final int getEmail=0x7f070034;
         public static final int getPassword=0x7f070035;
-        public static final int getUserName=0x7f070034;
         public static final int goBack=0x7f070045;
         public static final int goStartAgain=0x7f070046;
         public static final int icon=0x7f07003a;

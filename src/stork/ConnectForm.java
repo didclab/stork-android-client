@@ -82,7 +82,7 @@ public class ConnectForm extends Activity {
 				Intent intent = new Intent(context, Login.class);
 				intent.putExtra("hi", "LCL");
 				startActivity(intent);
-				//finish();
+				finish();
 			}
 		});
 	}//end of try

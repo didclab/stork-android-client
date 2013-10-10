@@ -79,7 +79,7 @@ public class TreeViewRoot extends TreeView {
 		
 		
 		if(side.equals("left")) {
-			left_header.setText(uri.toASCIIString());
+			left_header.setText(uri.getHost());
 			left_header.setVisibility(View.VISIBLE);
 			transfer21.setVisibility(View.GONE);
 			transfer12.setVisibility(View.VISIBLE);
@@ -93,7 +93,7 @@ public class TreeViewRoot extends TreeView {
 			
 		}
 		else{
-			right_header.setText(uri.toASCIIString());
+			right_header.setText(uri.getHost());
 			right_header.setVisibility(View.VISIBLE);
 			transfer12.setVisibility(View.GONE);
 			transfer21.setVisibility(View.VISIBLE);
@@ -105,15 +105,6 @@ public class TreeViewRoot extends TreeView {
 				}
 			});
 		}
-		
-//		ImageButton directoryUp = (ImageButton) view.findViewById(R.id.directoryUp);
-//		directoryUp.setOnClickListener(new View.OnClickListener() {
-//			public void onClick(View v) {
-//				System.out.println(uri.resolve(".."));
-//	
-//				init(uri.resolve(".."));
-//			}
-//		});
 
 		view.findViewById(R.id.serverSelection).setVisibility(View.GONE);
 		return this;

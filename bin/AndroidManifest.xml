@@ -37,21 +37,21 @@
         </activity>
         <activity
             android:name="stork.Login"
-            android:label="MyProxy Details"
+            android:label="StorkCloud Android Client/MyProxy Details"
             android:screenOrientation="landscape" >
         </activity>
          <activity
             android:name="stork.main.Register"
-            android:label="Register"
+            android:label="StorkCloud Android Client/Register"
             android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name="stork.ConnectForm"
-            android:label="Connect to..."
+            android:label="StorkCloud Android Client"
             android:screenOrientation="landscape" >    
         </activity>
         <activity android:name="stork.main.StartupClass"
-            android:label="Stork"
+            android:label="StorkCloud Android Client"
             android:screenOrientation="landscape">
                <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

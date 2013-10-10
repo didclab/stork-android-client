@@ -23,6 +23,7 @@ import stork.ad.*;
 import stork.main.StorkClientActivity;
 import android.annotation.SuppressLint;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * Class used to contact with rest api(s). TODO port to async classes for
@@ -108,7 +109,7 @@ public class Server {
 		HttpResponse resp;
 		
 		try {
-			ad = ad.merge(cookie);
+			ad = ad.put("user", cookie);
 			
 			// Create HTTP request.
 			if (method.equals("GET")) {
@@ -151,7 +152,6 @@ public class Server {
 			throw e;
 		} catch (Exception e) {
 			Log.v(TAG + " sendRequest", e.toString());
-			StorkClientActivity.showToast(e.getMessage(), true);
 			throw new RuntimeException(e);
 		}
 	}

@@ -292,7 +292,6 @@ public class StorkClientActivity extends Activity {
                     {
                         return true;
                     }
-
         }
         return false;
 	}

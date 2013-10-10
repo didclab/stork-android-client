@@ -141,7 +141,13 @@ public class TreeView {
 			//call init by changing the uri
 				Log.v("value of root", this.root().toString());
 				TreeViewRoot dummyRoot = this.root();
-				dummyRoot.init(dummyRoot.getURI().resolve(".."));
+				URI dummyURI = dummyRoot.getURI();
+				try{
+					dummyRoot.init(dummyURI.resolve(dummyURI.relativize(new URI(".."))));
+				}
+				catch(Exception e){
+					Log.v("TreeView", e.getMessage());
+				}
 				refreshData();
 		}
 		setOpen(!open);

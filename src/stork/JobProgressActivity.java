@@ -50,9 +50,9 @@ public class JobProgressActivity extends Activity  {
 
 			Toast.makeText(getApplicationContext(), "Touch Job ID for Details, Cancel or Remove Job", Toast.LENGTH_LONG).show();
 			
+			//fetching the jobs submitted after every 10 seconds...
 			timer = new Timer();
 			timer.scheduleAtFixedRate(new TimerTask(){
-
 				public void run()
 				{
 					try
@@ -71,7 +71,7 @@ public class JobProgressActivity extends Activity  {
 						Log.v(getLocalClassName(), e.toString());
 					}
 				}
-			}, 1000,1000);
+			}, 10000,10000);
 		}
 		catch(Exception e)
 		{
