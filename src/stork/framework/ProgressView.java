@@ -1,73 +1,58 @@
 package stork.framework;
 
+import android.graphics.Color;
+import android.util.Log;
+
 public class ProgressView {
+	public Long job_id;
+	public Progress progress; // if progress < 0, stork isn't transferring .
+	public EndPoint src, dest;
+	public String message;
+	public String status;
 	
-	private Long jobID;
-	private int progress; // if progress < 0, stork isn't transferring .
-	private final String server_one;
-	private final String server_two;
-	private final String message;
+	public static class ByteProgress {
+		double total;
+		double done;
+		double inst;
+		double avg;
 
-	/**
-	 * Constructor when there's numerical progress going on
-	 * 
-	 * @param jobId
-	 * @param one
-	 * @param progress
-	 * @param two
-	 */
-	public ProgressView(Long jobId, String one, int progress, String two) {
-		this.setJobID(jobId);
-		this.server_one = one;
-		this.server_two = two;
-		this.progress = progress;
-		this.message = null;
+		// Parse progress.
+		public int getProgress() {
+			if (total == 0)
+				return -1;
+			int d = (int) (100 * done / total);
+			if (d > 100)
+				d = 100;
+			if (d < 0)
+				d = -1;
+			return d;
+		}
 	}
 
-	/**
-	 * Consructor when there's a message instead of progress
-	 * 
-	 * @param jobId
-	 * @param one
-	 * @param message
-	 * @param two
-	 */
-	public ProgressView(Long jobId, String one, String message, String two) {
-		this.setJobID(jobId);
-		this.server_one = one;
-		this.server_two = two;
-		this.progress = -1;
-		this.message = message;
+	public static class Progress {
+		public ByteProgress bytes;
 	}
 
-	// GETTERS AND SETTERS
-	
+	public static class EndPoint {
+		public String[] uri;
+		public String cred;
+	}
+
+	public int getColor() {
+		if (this.status.equalsIgnoreCase("Complete"))
+			return Color.GREEN;
+		if (this.status.equalsIgnoreCase("failed"))
+			return Color.RED;
+		if (this.status.equalsIgnoreCase("removed"))
+			return Color.RED;
+		else
+			return Color.YELLOW;
+	}
+
 	public int getProgress() {
-		return progress;
+		if (progress != null && progress.bytes != null)
+			return progress.bytes.getProgress();
+		else
+			return -1;
 	}
-	
-	public void setProgress(int progress) {
-		this.progress= progress;
-	}
-
-	public String getServer_one() {
-		return server_one;
-	}
-
-	public String getServer_two() {
-		return server_two;
-	}
-
-	public Long getJobID() {
-		return jobID;
-	}
-
-	public void setJobID(Long jobID) {
-		this.jobID = jobID;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
 }

@@ -2,14 +2,15 @@ package stork.adapter;
 
 import java.util.List;
 
-import stork.main.R;
-import stork.listeners.OnJobProgressClickListener;
 import stork.framework.ProgressView;
-
+import stork.listeners.OnJobProgressClickListener;
+import stork.main.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.graphics.Color;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -59,13 +60,12 @@ public class ProgressListAdapter extends ArrayAdapter<ProgressView> {
 			viewHolder.jobID = (TextView) view.findViewById(R.id.jobID);
 			viewHolder.server1 = (TextView) view.findViewById(R.id.progressTextOne);
 			viewHolder.server2 = (TextView) view.findViewById(R.id.progressTextTwo);
+			viewHolder.progressbar.setProgress(0);
 			viewHolder.progressbar.setMax(100);
 			
 			// add listeners
-			OnJobProgressClickListener jpListener = new OnJobProgressClickListener(progressList.get(position).getJobID(),this,progressList);
-			viewHolder.progressbar.setOnClickListener(jpListener);
-			viewHolder.progressMessage.setOnClickListener(jpListener);
-			viewHolder.jobID.setOnClickListener(jpListener);
+			//OnJobProgressClickListener jpListener = new OnJobProgressClickListener(progressList.get(position).getJobID(),this,progressList);
+			
 			viewHolder.server1.setOnClickListener(new OnClickListener() {
 				
 				public void onClick(View v) {
@@ -89,28 +89,55 @@ public class ProgressListAdapter extends ArrayAdapter<ProgressView> {
 		} else {
 			view = convertView;
 		}
-		
+	
 		ViewHolder holder = (ViewHolder) view.getTag();
-		holder.jobID.setText(Long.toString(progressList.get(position).getJobID()));
+		OnJobProgressClickListener jpListener = new OnJobProgressClickListener(getItem(position).job_id,this,progressList);
+		holder.progressbar.setOnClickListener(jpListener);
+		holder.progressMessage.setOnClickListener(jpListener);
+		holder.jobID.setOnClickListener(jpListener);
+		long jobID = progressList.get(position).job_id;
+		holder.jobID.setText(Long.toString(jobID));
 		int progress = progressList.get(position).getProgress();
+		int color = progressList.get(position).getColor();
+		String status = progressList.get(position).status;
+		String message = progressList.get(position).message;
+		if(message != null)
+			Log.v(jobID+"-"+"message", message);
+		
 		if (progress < 0) {
-			holder.progressbar.setProgress(progressList.get(position).getProgress());
-			holder.progressbar.setVisibility(View.INVISIBLE);
-			holder.progressMessage.setVisibility(View.VISIBLE);
-			holder.progressMessage.setText(progressList.get(position).getMessage());
-			holder.tv_progress.setText(Integer.toString(progressList.get(position).getProgress()));
-	} 
+			holder.progressbar.setProgress(progress);
+			holder.progressbar.setVisibility(View.VISIBLE);
+			if(!status.equals("processing"))
+				holder.progressbar.getProgressDrawable().setColorFilter(color, Mode.SRC_IN);
+			holder.tv_progress.setTextColor(Color.BLACK);
+			holder.tv_progress.setTypeface(null,Typeface.BOLD);
+			//holder.tv_progress.setText(progress+"");
+			holder.tv_progress.setText(status);
+		} 
 		else{
-			holder.progressbar.setProgress(progressList.get(position).getProgress());
+			holder.progressbar.setProgress(progress);
 			holder.progressMessage.setVisibility(View.INVISIBLE);
 			holder.progressbar.setVisibility(View.VISIBLE);
 			holder.tv_progress.setTextColor(Color.BLACK);
 			holder.tv_progress.setTypeface(null,Typeface.BOLD);
-			holder.tv_progress.setText(Integer.toString(progressList.get(position).getProgress())+"%");//for percentage
+			
+			if(status.equals("removed") || status.equals("complete")){
+				holder.progressbar.getProgressDrawable().setColorFilter(color, Mode.SRC_IN);
+				holder.tv_progress.setText(status);
+			}
+			else
+				holder.tv_progress.setText(progress+"%");
 		}
-		holder.server1.setText(progressList.get(position).getServer_one());
-		holder.server2.setText(progressList.get(position).getServer_two());
+		String srcDetails = "";
+		for(String u : progressList.get(position).src.uri)
+			srcDetails += "" +u+" ";	
+		holder.server1.setText(srcDetails);
+		holder.server2.setText(progressList.get(position).dest.uri[0]);
+		notifyDataSetChanged();
 		return view;
 	}
-	
+	@Override
+	public long getItemId(int position) {
+		return position;
+	}
 }

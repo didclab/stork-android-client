@@ -51,6 +51,7 @@ public class ConfirmDAPClickListener implements DialogInterface.OnClickListener 
 			String s = "Job successfully submitted. Job id: "+response.get("job_id");
 			StorkClientActivity.showToast(s);
 		} catch(Exception e) {
+			e.printStackTrace();
 			Log.e(getClass().getSimpleName(), e.toString());
 			StorkClientActivity.showToast(e.getMessage());
 		}

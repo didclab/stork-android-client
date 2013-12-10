@@ -1,16 +1,19 @@
 package stork;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
-import stork.ad.Ad;
 import stork.main.R;
-import stork.main.R.id;
 import stork.main.StorkClientActivity;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.BaseAdapter;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
 
 /**
  * Represents the entire context of one of the lists on the screen.
@@ -19,11 +22,11 @@ import android.widget.*;
 public class TreeViewRoot extends TreeView {
 	public final String side;
 	public final View view;
-	public TreeView selectedChild;
-	public URI uri;
+	public List<TreeView> selectedChild  = new ArrayList<TreeView>();
+	public volatile URI uri;
 	public String cred;
 	public ListView lv;
-	private BaseAdapter adapter = adapter();
+	public BaseAdapter adapter = adapter();
 	
 	public TreeViewRoot(String n, View v) {
 		super(null, n, true);
@@ -52,11 +55,13 @@ public class TreeViewRoot extends TreeView {
 	// Initialize the context by creating a root treeview for a URI.
 	public TreeView init(URI u) {
 		uri = u;
-		
+	
 		ListView v = (ListView) view.findViewById(R.id.listview);
 		v.setAdapter(adapter);
+		
 		// Update the list. This may throw.
 		fetchChildren();
+		
 		adapter.notifyDataSetChanged();
 		
 		// Update the UI.
@@ -107,9 +112,12 @@ public class TreeViewRoot extends TreeView {
 		}
 
 		view.findViewById(R.id.serverSelection).setVisibility(View.GONE);
+		
 		return this;
 	}
-
+	public ListView getListView() {
+		return lv;
+	}
 	public BaseAdapter adapter() {
 		return new BaseAdapter(){
 			public int getCount() {
@@ -163,22 +171,17 @@ public class TreeViewRoot extends TreeView {
 	
 	// Reset the list and UI.
 	public void reset() {
-		selectedChild = null;
-		uri = null;
-		view.findViewById(R.id.serverSelection).setVisibility(View.VISIBLE);
-		children.clear();
-		redraw();
-		fetched = false;
-		fetching = false;
-		error = false;
+		this.selectedChild = null;
+		this.uri = null;
+		this.view.findViewById(R.id.serverSelection).setVisibility(View.VISIBLE);
+		this.children.clear();
+		this.redraw();
+		this.fetched = false;
+		this.fetching = false;
+		this.error = false;
 	}
 	
 	public TreeViewRoot root() {
 		return this;
-	}
-	public static void redrawEverything(URI uri){
-
-	}
-	
-	
+	}	
 }

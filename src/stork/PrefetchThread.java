@@ -74,7 +74,7 @@ public class PrefetchThread extends Thread {
 		} catch (InterruptedException e) {
 			Log.d("PrefetchThread", "interrupted");
 		} catch (Exception e) {
-			// Oh well!
+			Log.v("PFT Exception", e.toString());
 		}
 	}
 

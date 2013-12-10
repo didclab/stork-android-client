@@ -35,5 +35,13 @@
         <item>myproxy.teragrid.org</item>
         <item>trestles-dm.sdsc.xsede.org</item>
     </string-array>
-
+    <string-array name="option_array">
+        <item>Transfer Optimization</item>
+        <item>Overwrite Existing file</item>
+        <item>Verify File Integrity</item>
+        <item>Encrypt Data</item>
+        <item>Compress Data</item>        
+    </string-array>
+    <string name="spinner_header">Transfer options</string>
+	
 </resources>

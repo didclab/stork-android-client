@@ -1,19 +1,31 @@
 package stork;
 
-import java.net.URI;
-import java.util.*;
-
-import stork.main.StorkClientActivity;
-import static stork.main.StorkClientActivity.inflater;
-import android.util.Log;
 import static android.view.HapticFeedbackConstants.VIRTUAL_KEY;
-import android.view.View;
-import android.widget.*;
-import android.widget.CompoundButton.OnCheckedChangeListener;
+import static stork.main.StorkClientActivity.inflater;
+
+import java.io.File;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import stork.ad.Ad;
-import stork.main.R;
 import stork.cache.Cache;
+import stork.main.R;
+import stork.main.StorkClientActivity;
+import stork.server.SendDAPFileTask;
+import android.os.Environment;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.util.Log;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 /**
  * Directory Tree Nodes used in List View. Executing this thing in
@@ -21,6 +33,10 @@ import stork.cache.Cache;
  * listing data.
  */
 public class TreeView {
+	/**
+	 * 
+	 */
+
 	public TreeView parent;
 	public String name;
 	public List<TreeView> children;
@@ -37,7 +53,7 @@ public class TreeView {
 		this.dir = dir;
 		children = new LinkedList<TreeView>();
 	}
-	
+	 	 
 	public int height(){
 		if(!isOpen())
 			return 1;
@@ -60,24 +76,38 @@ public class TreeView {
 		TextView textView = (TextView) v.findViewById(R.id.label);
 		textView.setText(toString());
 		
-		CheckBox c = (CheckBox) v.findViewById(R.id.check);
-		c.setOnCheckedChangeListener(null);
-		c.setChecked(isSelected());
-		c.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if (isSelected() && !isChecked)
-					root().selectedChild = null;
-				else if (!isSelected() && isChecked)
-					root().selectedChild = TreeView.this;
-				redraw();
-			}
-		});
+		final CheckBox c = (CheckBox) v.findViewById(R.id.CheckBox);
+			c.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+					c.setChecked(isChecked);
+					if (!isSelected() && isChecked){
+						root().selectedChild.add(TreeView.this);
+					}
+					else {//if its already selected and the user 
+						Iterator<TreeView> it = root().selectedChild.iterator();
+						while(it.hasNext()){
+							if(it.next() == TreeView.this){
+								it.remove();
+								break;
+							}
+						}
+					}
+					redraw();
+				}
+			});
 		
 		v.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				try {
-					Log.v("View clicked", v.toString());
-					
+					//if the treeview was selected and checkbox was already checked then uncheck and unselect
+					if(isSelected() && c.isChecked()){
+						Log.v("View Clicked", "c is setchecked to false");
+						c.setChecked(false);
+					}
+					else {
+						Log.v("View Clicked", "c is setchecked to true");
+						c.setChecked(true);
+					}
 					toggle();
 					v.performHapticFeedback(VIRTUAL_KEY);
 				} catch (Exception e) {
@@ -92,7 +122,22 @@ public class TreeView {
 	}
 	
 	public boolean isSelected() {
-		return root().selectedChild == this;
+		TreeViewRoot root= root();
+		if(root != null) {
+			if(root.selectedChild != null){
+				Iterator<TreeView> it = root().selectedChild.iterator();
+				while(it.hasNext()){
+					if(it.next() == TreeView.this){
+						return true;
+					}
+				}
+			}
+			else{
+				root.selectedChild = new ArrayList<TreeView>();
+				return false;
+			}
+		}
+		return false;
 	}
 	
 	public TreeView getChild(int i){
@@ -126,6 +171,7 @@ public class TreeView {
 	
 	public URI getURI() {
 		String n = name+(dir ? "/" : "");
+		//Log.v("URL", parent.getURI().resolve("./"+n).toString());
 		return parent.getURI().resolve("./"+n).normalize();
 	}
 	
@@ -139,7 +185,7 @@ public class TreeView {
 	} public void toggle() {
 		if(this.name.equals("..")){
 			//call init by changing the uri
-				Log.v("value of root", this.root().toString());
+			//	Log.v("value of root", this.root().toString());
 				TreeViewRoot dummyRoot = this.root();
 				URI dummyURI = dummyRoot.getURI();
 				try{
@@ -202,18 +248,36 @@ public class TreeView {
 
 	private Ad fetchListingData() {
 		URI uri = getURI();
-
+	//	Log.v("fetchListingData, namr", this.name);
+	//	Log.v("fetchListingData, size", this.children.size()+"");
 		if (!dir) return new Ad();
 		
 		// Check if we can get listings from the cache.
 		Ad listing = Cache.getFromCache(uri);
 
 		if (listing != null) {
-			Log.v("TreeView", "Retrieved from cache:"+uri);
+			//Log.v("TreeView", "Retrieved from cache:"+uri);
 		} else {
 //			for(prefetch_and_cache p : StorkClientActivity.pac)
 //				p.interrupt();
-			listing = Server.getListings(this);
+			File root = null;
+			if(uri.getHost().equals("localhost"))
+			{
+			//	Log.v("value of this", this.getURI().getHost());
+				root = new File(Environment.getExternalStorageDirectory()+"");
+				if(this.isSelected())
+					root = new File(Environment.getExternalStorageDirectory()+"/"+this);
+				
+				listing = new Ad();
+				for (File f : root.listFiles()) {
+					Ad a = new Ad("name", f.getName());
+					a.put(f.isDirectory() ? "dir" : "file", true);
+					listing.put(a);
+				}
+				return new Ad("files", listing);
+			}
+			else	
+				listing = Server.getListings(this);
 		//	Log.v("Listing from Directory", listing.toString());
 
 			Log.v(getClass().getSimpleName(), "Retrieved from dls");
@@ -228,7 +292,12 @@ public class TreeView {
 		children.clear();
 		if (ad.has("files")) for (Ad a : ad.getAds("files")) {
 			boolean is_dir = a.get("dir", "").equals("true");
-			if(this == root() && children.size() == 0) children.add(new TreeView(this, "..", true));
+			if(this == root() && (!this.getURI().toString().equals(this.getURI().getScheme()+"://"+this.getURI().getHost())) && children.size() == 0 && (!this.getURI().getHost().equals("localhost"))){
+				/*Log.v("This URI = ", this.getURI().toString());
+				Log.v("Complete host = ", this.getURI().getScheme()+"://"+this.getURI().getHost()+"");
+				Log.v("They match = ", this.getURI().toString().equals(this.getURI().getScheme()+"://"+this.getURI().getHost())+"");*/
+				children.add(new TreeView(this, "..", true));
+			}
 			children.add(new TreeView(this, a.get("name"), is_dir));
 		}
 		redraw();

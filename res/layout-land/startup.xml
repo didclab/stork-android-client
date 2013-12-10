@@ -34,14 +34,13 @@
          android:layout_below="@+id/getPassword"
          android:text="Register" />
 
-
      <Button
          android:id="@+id/StartupSubmit"
          android:layout_width="100dp"
          android:layout_height="wrap_content"
          android:layout_alignLeft="@+id/getPassword"
          android:layout_below="@+id/getPassword"
-         android:text="SignIn" />
+         android:text="Sign in" />
 
      <CheckBox
          android:id="@+id/rememberMe"

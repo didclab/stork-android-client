@@ -2,13 +2,11 @@ package stork.main;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import stork.Configuration;
 import stork.ConnectForm;
 import stork.JobProgressActivity;
 import stork.PrefetchThread;
@@ -16,7 +14,6 @@ import stork.Server;
 import stork.TreeView;
 import stork.TreeViewRoot;
 import stork.ad.Ad;
-import stork.ad.AdObject;
 import stork.listeners.ConfirmDAPClickListener;
 import stork.server.SendDAPFileTask;
 import android.app.Activity;
@@ -38,112 +35,153 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 public class StorkClientActivity extends Activity {
 	public static BlockingQueue<TreeView> queue = new LinkedBlockingQueue<TreeView>();
-	public static TreeViewRoot[] lc = { null, null };
+	public static volatile TreeViewRoot[] lc = { null, null };
 	boolean dapConfirmResponse = false;
 	public static String cert_path = null;
-	private Menu menu;
 	public static PrefetchThread[] pac;
 	public static int countOfThreads = 5;
-	File mPath = new File(Environment.getExternalStorageDirectory() + "/"+"Stork");
-	
+	File mPath = new File(Environment.getExternalStorageDirectory() + "/"
+			+ "Stork");
+
 	// Set when we start the connect form activity.
 	public static TreeViewRoot currentContext = null;
-	
+
 	public static StorkClientActivity context = null;
-	
+
 	// Used to load layout views.
 	public static LayoutInflater inflater() {
-		return (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		return (LayoutInflater) context
+				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
 	public final static String FIRST_TIME_USE = "FirstTimeUse";
 	public static final String PREFEREENCES = "StorkSharedPrefences";
-	public static final String CERTIFICATE_LOCATION = Environment.getExternalStorageDirectory()+File.separator+"Stork"+File.separator+"Certificates";
+	public static final String CERTIFICATE_LOCATION = Environment
+			.getExternalStorageDirectory()
+			+ File.separator
+			+ "Stork"
+			+ File.separator + "Certificates";
 
 	/** Called when the activity is first created. */
 	@SuppressWarnings("resource")
-	public void onCreate(Bundle icicle) {
-		try{
-		super.onCreate(icicle);
-		setContentView(R.layout.bothlists);
+	public void onCreate(Bundle saveState) {
+		try {
+			super.onCreate(saveState);
+			setContentView(R.layout.bothlists);
+			context = this;
 
-		context = this;
-		
-		// Make sure network is available.
-		if (!isNetworkAvailable()) {
-			showToast("Network is unavailable", true);
-			return;
-		}
-		// Spawn a thread to fetch the creds.
-		new Thread() {
-			public void run() {
-				Ad ad = Server.sendRequest("/api/stork/info?type=cred", null, "POST");
-				System.out.println(ad.toString());
-				Set<Entry<Object, AdObject>> a = ad.entrySet();
-				Server.credentialKeys.clear();
-				Server.credentialKeys.add("");
-				for(Entry<Object, AdObject> s : a){
-					Server.credentialKeys.add(s.getKey().toString());
+			// Make sure network is available.
+			if (!isNetworkAvailable()) {
+				showToast("Network is unavailable", true);
+				return;
+			}
+			// Spawn a thread to fetch the creds.
+			new Thread() {
+				public void run() {
+					Ad ad = Server.sendRequest("/api/stork/info?type=cred",
+							null, "POST");
+					System.out.println(ad.toString());
+					Server.credentialKeys.clear();
+					Server.credentialKeys.add("");
+					for (String s : ad.keySet()) {
+						Server.credentialKeys.add(s);
+					}
+				}
+			}.start();
+
+			// Grab the views for both lists.
+			lc[0] = new TreeViewRoot("left",
+					(ViewGroup) findViewById(R.id.left));
+			lc[1] = new TreeViewRoot("right",
+					(ViewGroup) findViewById(R.id.right));
+			System.out.println("lc[0] lc[1] set to default!");
+			if(saveState != null) {
+				String temp = saveState.getString("lc[0]");
+				Log.v("URI1", temp + "");
+				String temp1 = saveState.getString("lc[1]");
+				Log.v("URI2", temp1 + "");
+				if (temp != null) {
+					lc[0].init(new URI(temp));
+				}
+	
+				if (temp1 != null) {
+					lc[1].init(new URI(temp1));
 				}
 			}
-		}.start();
-		
-		// Grab the views for both lists.
-		lc[0] = new TreeViewRoot("left", (ViewGroup) findViewById(R.id.left));
-		lc[1] = new TreeViewRoot("right", (ViewGroup) findViewById(R.id.right));
+			// Initialize prefetching threads.
+			pac = new PrefetchThread[countOfThreads];
+			for (int i = 0; i < countOfThreads; i++)
+				(pac[i] = new PrefetchThread()).start();
 
-		// Initialize prefetching threads.
-		pac = new PrefetchThread[countOfThreads];
-		for(int i=0;i<countOfThreads;i++)
-			(pac[i] = new PrefetchThread()).start();
-		
-		// Set up listeners for both of the views.
-		for (final TreeViewRoot l : lc) {
-			registerForContextMenu(l.view);
+			// Set up listeners for both of the views.
+			for (final TreeViewRoot l : lc) {
+				registerForContextMenu(l.view);
 
-			Button searchButton = (Button) l.view.findViewById(R.id.serverSelection);
-			searchButton.setOnClickListener(new View.OnClickListener() { 
-				public void onClick(View v) {
-					currentContext = l;
-					Intent i = new Intent(context, ConnectForm.class);
-					startActivity(i);
-				}
-			});
+				Button searchButton = (Button) l.view
+						.findViewById(R.id.serverSelection);
+				searchButton.setOnClickListener(new View.OnClickListener() {
+					public void onClick(View v) {
+						currentContext = l;
+						Intent i = new Intent(context, ConnectForm.class);
+						startActivity(i);
+					}
+				});
+			}
+
+			SharedPreferences prefs = getSharedPreferences(PREFEREENCES,
+					Context.MODE_PRIVATE);
+
+			// it returns false if settings is not set before or this is the
+			// first time we are running
+			boolean silent = prefs.getBoolean(FIRST_TIME_USE, false);
+
+			if (!silent) {
+				// change to true
+				SharedPreferences.Editor editor = prefs.edit();// creates the
+																// editor using
+																// which we can
+																// modify the
+																// shared
+																// preference
+																// data
+				editor.putBoolean(FIRST_TIME_USE, true); // sets the preference
+															// data to the
+															// boolean value
+															// passed as the
+															// second parameter
+				editor.commit(); // makes the changes visible to all
+
+				/* do all operations on first run */
+
+				// creating folder for certificates if needed in sdcard
+				File sdDir = new File(CERTIFICATE_LOCATION);
+				if (sdDir.mkdirs())
+					Log.v(getClass().getSimpleName(), "Certificate Dir Created");
+				else
+					Log.e(getClass().getSimpleName(),
+							"Certificate Dir Not Created!");// getSimplename jus
+															// returns the name
+															// of the class
+
+			}
+			// }
+		}// end of try
+		catch (Exception e) {
+			e.printStackTrace();
+			Log.v("Error in StorkClientActivity", e.getMessage());
 		}
 
-		SharedPreferences prefs = getSharedPreferences(PREFEREENCES, Context.MODE_PRIVATE);
-
-		// it returns false if settings is not set before or this is the first time we are running
-		boolean silent = prefs.getBoolean(FIRST_TIME_USE, false);
-
-		if (!silent) {
-			//change to true
-			SharedPreferences.Editor editor = prefs.edit();//creates the editor using which we can modify the shared preference data  
-			editor.putBoolean(FIRST_TIME_USE, true); //sets the preference data to the boolean value passed as the second parameter
-			editor.commit(); // makes the changes visible to all
-
-			/*do all operations on first run*/
-
-			//creating folder for certificates if needed in sdcard
-			File sdDir = new File(CERTIFICATE_LOCATION);
-			if(sdDir.mkdirs()) 	Log.v(getClass().getSimpleName(), "Certificate Dir Created");
-			else 				Log.e(getClass().getSimpleName(), "Certificate Dir Not Created!");//getSimplename jus returns the name of the class
-
-		}
-		}//end of try
-	catch(Exception e){
-		Log.v("Error in StorkClientActivity",e.getMessage());
-	}
 	}
 
 	/**
 	 * Menu options. TODO remove for ICS compatibility
 	 */
-	//being an onCreate called whenever the application is loaded onto the device
+	// called whenever the activity is loaded onto the device
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.clientmenu, menu);
@@ -151,70 +189,40 @@ public class StorkClientActivity extends Activity {
 	}
 
 	/**
-	 * Menu Listener. 
+	 * Menu Listener.
 	 */
-	//called whenever the user selects some options from the main screen
-	//Menu button is present at the bottom of the phone, visible when the application is running
-
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection
 		switch (item.getItemId()) {
-//		case R.id.transfer21:
-//			return makeTransfer(lc[1], lc[0]);
-//		case R.id.transfer12:
-//			return makeTransfer(lc[0], lc[1]);
 		case R.id.progress:
-			Intent getProgressIntent = new Intent(getApplicationContext(), JobProgressActivity.class);
+			Intent getProgressIntent = new Intent(getApplicationContext(),
+					JobProgressActivity.class);
 			startActivityForResult(getProgressIntent, 0);
 			return true;
-		case R.id.disconnectAll:
-			Log.v("disconnect", "All");
-//			MenuItem _item = menu.getItem(2);
-//			Menu submenu = _item.getSubMenu();
-//			MenuItem item2 =submenu.findItem(R.id.Dserver1);
-//			if(lc[0].root()!= null) item2.setTitle("Disconnect server1 : "+lc[0].root().toString());
-//			if(lc[1].root()!= null) menu.getItem(2).getSubMenu().findItem(R.id.Dserver2).setTitle("Disconnect server2 : "+lc[1].root().toString());
-			//
-			//if(lc[1]!=null) menu.findItem(R.id.Dserver2).setTitle(lc[1].root().toString());
-			return true;
-		case R.id.Dserver1 : 
+		case R.id.Dserver1:
 			Log.v("server 1", "Dserver1");
 			lc[0].reset();
 			return true;
-		case R.id.Dserver2 : 
+		case R.id.Dserver2:
 			Log.v("server 2", "Dserver2");
 			lc[1].reset();
-			return true;	
-		case R.id.DserverBoth :
-			Intent i = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
+			return true;
+		case R.id.DserverBoth:
+			Intent i = getBaseContext().getPackageManager()
+					.getLaunchIntentForPackage(
+							getBaseContext().getPackageName());
 			i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
 					| Intent.FLAG_ACTIVITY_NEW_TASK
 					| Intent.FLAG_ACTIVITY_NO_ANIMATION);
 			startActivity(i);
 			finish();
 			return true;
-		case R.id.config:
-			Intent intent = new Intent(this, Configuration.class);
-			startActivity(intent);
+		case R.id.disconnectAll:
+			Log.v("disconnect", "All");
 			return true;
-//		case R.id.select:
-//			openFiles();//file browsing on the sd card
-//			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
-	}
-	
-	//for browsing the contents of sd card.
-	private void openFiles() {
-		FileDialog fileDialog = new FileDialog(StorkClientActivity.this, mPath);
-        fileDialog.setFileEndsWith(".txt");
-        fileDialog.addFileListener(new FileDialog.FileSelectedListener() {
-            public void fileSelected(File file) {
-                Log.d(getClass().getName(), "selected file " + file.toString());
-            }
-        });
-        fileDialog.showDialog();
 	}
 
 	/**
@@ -225,54 +233,97 @@ public class StorkClientActivity extends Activity {
 	 * @param serverTo
 	 * @return
 	 */
-	public boolean makeTransfer(TreeViewRoot fromRoot, TreeViewRoot toRoot) { //ListView serverfrom and serverto
-		//if the user doesn't enter any credentials of servers to which this app should connect
-		TreeView from = fromRoot.selectedChild;
-		TreeView to = toRoot.selectedChild;
-		//Checking that the user makes a selection
-		if (from == null && to == null) {
+	public boolean makeTransfer(TreeViewRoot fromRoot, TreeViewRoot toRoot) { // ListView
+																				// serverfrom
+																				// and
+																				// serverto
+		if (fromRoot == null && toRoot == null) {
 			showToast("Make a selection");
 			return false;
 		}
-		//if the user misses to select a directory on one of the sides then transfer to the path set on the login page.
-		if (from != null && to == null) {
-			
-			to = toRoot;//how to acces
-		}
-		if (from == null && to != null) {
-			from = fromRoot;
-		}
-		//perform validation 
-		if(from.dir && !to.dir){
-			showToast("Cannot transfer directory to a file");
+		
+		List<TreeView> from = fromRoot.selectedChild;
+		if(from.size() < 1){
+			showToast("Select atleast one source directory", true);
 			return false;
 		}
-		
-		SendDAPFileTask sendDap = new SendDAPFileTask(from, to);
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		ConfirmDAPClickListener dapListener = new ConfirmDAPClickListener(this, sendDap, null);
-		builder .setMessage(sendDap.toString()/* + "\n"*/)
-		.setCancelable(false)
-		.setTitle("Are you sure about this transfer?")
-		.setPositiveButton("Yes",dapListener)
-		.setNegativeButton("No", dapListener);
-		AlertDialog alert = builder.create();
+		if (toRoot.selectedChild.size() > 1) {
+			showToast("Select only one destination", true);
+			return false;
+		}
+		TreeView to = null;
+		Log.v("To size = ", toRoot.selectedChild.size() + "");
+		if (toRoot.selectedChild.size() == 1) {
+			to = toRoot.selectedChild.get(0);
+		}
+		if (toRoot.selectedChild.size() > 1) {
+			showToast("select only one destination");
+		}
+	
+		// if the user misses to select a directory on one of the sides then
+		// transfer to the path set on the login page.
+		if (from != null && to == null) {
+			to = toRoot;// how to acces
+		}
 
-		//set width n height
+		int counter = 0;
+		while (counter < from.size()) {
+			// perform validation
+			if (from.get(counter++).dir && !to.dir) {
+				showToast("Cannot transfer directory to a file");
+				return false;
+			}
+		}
+		//{"src":{"uri":["ftp://didclab-ws8/home/globus/stuff"]},
+		//"dest":{"uri":["ftp://didclab-ws8/home/globus/stuff"]},"options":{"optimizer":null,"overwrite":true,"verify":false,"encrypt":false,"compress":false}}
+		View mSpinner = View.inflate(this, R.layout.spinner, null);
+		Spinner s = (Spinner) mSpinner.findViewById(R.id.spin);
+		ArrayList<RowData> data = getRowData();
+		s.setAdapter(new CustomSpinnerAdapter(getApplicationContext(), data));
+		
+		SendDAPFileTask sendDap = new SendDAPFileTask(from, to, data);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		ConfirmDAPClickListener dapListener = new ConfirmDAPClickListener(this,
+				sendDap, null);
+		
+		builder.setMessage(sendDap.toString()).setCancelable(false)
+				.setView(mSpinner)
+				.setTitle("Are you sure about this transfer?")
+				.setPositiveButton("Yes", dapListener)
+				.setNegativeButton("No", dapListener);
+		AlertDialog alert = builder.create();
+		
+		// set width n height
 		WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
 		lp.copyFrom(alert.getWindow().getAttributes());
 		lp.width = WindowManager.LayoutParams.FILL_PARENT;
 		lp.height = WindowManager.LayoutParams.FILL_PARENT;
 		alert.show();
 		alert.getWindow().setAttributes(lp);
+
+		return true;	
+	}
+
+	private ArrayList<RowData> getRowData() {
+		ArrayList<RowData> listToReturn = new ArrayList<RowData>();
 		
-		return true;
+		String[] options = getResources().getStringArray(R.array.option_array);
+		
+		for(String option: options){
+			RowData data = new RowData();
+			data.setName(option);
+			listToReturn.add(data);
+		}
+		return listToReturn;
 	}
 
 	final static Handler toaster = new Handler();
+
 	public static void showToast(String msg) {
 		showToast(msg, false);
-	} public static void showToast(final String msg, boolean is_long) {
+	}
+
+	public static void showToast(final String msg, boolean is_long) {
 		final int l = (is_long) ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT;
 		toaster.post(new Runnable() {
 			public void run() {
@@ -280,25 +331,38 @@ public class StorkClientActivity extends Activity {
 			}
 		});
 	}
-	
+
 	private boolean isNetworkAvailable() {
 		ConnectivityManager connectivity = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivity != null)
-        {
-            NetworkInfo[] info = connectivity.getAllNetworkInfo();
-            if (info != null)
-                for (int i = 0; i < info.length; i++)
-                    if (info[i].getState() == NetworkInfo.State.CONNECTED)
-                    {
-                        return true;
-                    }
-        }
-        return false;
+		if (connectivity != null) {
+			NetworkInfo[] info = connectivity.getAllNetworkInfo();
+			if (info != null)
+				for (int i = 0; i < info.length; i++)
+					if (info[i].getState() == NetworkInfo.State.CONNECTED) {
+						return true;
+					}
+		}
+		return false;
 	}
-	
+
 	@Override
-	protected void onRestart(){
+	protected void onRestart() {
 		super.onRestart();
 	}
-	
+
+	protected void onSaveInstanceState(Bundle saveState) {
+		Log.v("Onsaved Instance", "state called");
+		Log.v("URI1", lc[0].uri + "");
+		Log.v("URI2", lc[1].uri + "");
+		System.out.println(lc[1].hashCode());
+		if(lc[0].uri != null) saveState.putString("lc[0]", lc[0].uri + "");
+		if(lc[1].uri != null) saveState.putString("lc[1]", lc[1].uri + "");
+		super.onSaveInstanceState(saveState);
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle saveState) {
+		super.onRestoreInstanceState(saveState);
+
+	}
 }

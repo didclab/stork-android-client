@@ -2,28 +2,37 @@ package stork;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-
-import ch.boye.httpclientandroidlib.HttpResponse;
-import ch.boye.httpclientandroidlib.client.*;
-import ch.boye.httpclientandroidlib.client.methods.*;
-import ch.boye.httpclientandroidlib.conn.*;
-import ch.boye.httpclientandroidlib.entity.StringEntity;
-import ch.boye.httpclientandroidlib.entity.mime.*;
-import ch.boye.httpclientandroidlib.entity.mime.content.*;
-import ch.boye.httpclientandroidlib.impl.client.*;
-import ch.boye.httpclientandroidlib.impl.conn.*;
-import ch.boye.httpclientandroidlib.params.*;
-import ch.boye.httpclientandroidlib.util.EntityUtils;
 
 import stork.ad.*;
 import stork.main.StorkClientActivity;
 import android.annotation.SuppressLint;
 import android.util.Log;
-import android.widget.Toast;
+import ch.boye.httpclientandroidlib.HttpResponse;
+import ch.boye.httpclientandroidlib.client.HttpClient;
+import ch.boye.httpclientandroidlib.client.methods.HttpGet;
+import ch.boye.httpclientandroidlib.client.methods.HttpPost;
+import ch.boye.httpclientandroidlib.client.methods.HttpRequestBase;
+import ch.boye.httpclientandroidlib.entity.StringEntity;
+import ch.boye.httpclientandroidlib.entity.mime.HttpMultipartMode;
+import ch.boye.httpclientandroidlib.entity.mime.MultipartEntity;
+import ch.boye.httpclientandroidlib.entity.mime.content.StringBody;
+import ch.boye.httpclientandroidlib.impl.client.DecompressingHttpClient;
+import ch.boye.httpclientandroidlib.impl.client.DefaultHttpClient;
+import ch.boye.httpclientandroidlib.impl.conn.PoolingClientConnectionManager;
+import ch.boye.httpclientandroidlib.impl.conn.SchemeRegistryFactory;
+import ch.boye.httpclientandroidlib.params.BasicHttpParams;
+import ch.boye.httpclientandroidlib.params.CoreConnectionPNames;
+import ch.boye.httpclientandroidlib.params.HttpParams;
+import ch.boye.httpclientandroidlib.util.EntityUtils;
 
 /**
  * Class used to contact with rest api(s). TODO port to async classes for
@@ -34,17 +43,23 @@ import android.widget.Toast;
 public class Server {
 	public static String TAG = Server.class.getSimpleName();
 	static volatile int request_count = 1;
-	static URI stork_uri = URI.create("http://didclab-ws4.cse.buffalo.edu");
+	static URI stork_uri = URI.create("http://didclab-ws4.cse.buffalo.edu");//storkcloud.org
 	public static volatile HttpClient httpclient;
 	public static List<String> credentialKeys = new ArrayList<String>();
 	public static Ad cookie = new Ad();
 	//private static ClientConnectionManager conman =
 		//	new PoolingClientConnectionManager();
-
+	private final static String mWalledGardenUrl = "http://clients3.google.com/generate_204";
+	private static final int WALLED_GARDEN_SOCKET_TIMEOUT_MS = 10000;
 	static  {
 		httpclient = createHttpClient();
 		credentialKeys.add("");
 	}
+	public static boolean overWrite = false;
+	public static boolean xferOptimization = false;
+	public static boolean fileIntegrity = false;
+	public static boolean EdataChannel = false;
+	public static boolean CdataChannel = false;
 	
 	public static HttpClient createHttpClient() {
 		HttpParams params = new BasicHttpParams();
@@ -59,28 +74,35 @@ public class Server {
 
 	// Helper methods for converting ads to HttpClient parameters.
 	public static String adToQueryString(Ad ad) {
-		String s = null;
-		Map<String, String> map = new HashMap<String, String>();
+		String s = "";
+		Log.v("Ad", ad.toString());
+		Map<String, String> map = new HashMap<String, String>(); 
 
-		for (Map.Entry<Object, AdObject> e : ad.entrySet()) {
-			AdObject o = e.getValue();
-			if (s != null) s = s+"&";
-			else s = "";
-			if (o.isAd()) for (Map.Entry<Object, AdObject> ei : o.asAd().entrySet()) {
-				s = s+(e.getKey()+"."+ei.getKey()+"="+URLEncoder.encode(ei.getValue().asString()));
+		// Flatten ad up to one level.
+		for (String k : ad.keySet()) {
+			AdObject o = ad.getObject(k);
+			if (o.isAd()) for (String k2 : o.asAd().keySet()) {
+				map.put(k+"."+k2, o.asAd().get(k));
 			} else {
-				s = s+(e.getKey()+"="+URLEncoder.encode(e.getValue().asString()));
+				map.put(k, ad.get(k));
 			}
-		} return s == null ? "" : s;
+		}	
+		// Make query string.
+		for (String k : map.keySet()) {
+			if (map.get(k) == null) continue;
+			if (!s.isEmpty()) s += "&";
+			s += k+"="+URLEncoder.encode(map.get(k));
+		}
+		
+		return s;
 	}
 
 	public static MultipartEntity adToMultipart(Ad ad) {
 		MultipartEntity me = new MultipartEntity(
 				HttpMultipartMode.BROWSER_COMPATIBLE);
 
-		for (Map.Entry<Object, AdObject> e : ad.entrySet()) try {
-			System.out.println(e);
-			me.addPart((String) e.getKey(), new StringBody(e.getValue().toString()));
+		for (String s : ad.keySet()) try {
+			me.addPart(s, new StringBody(ad.get(s)));
 		} catch (UnsupportedEncodingException e1) {
 			// Oh well.
 		} return me;
@@ -103,14 +125,32 @@ public class Server {
 	public static String sendHTTPRequest(HttpClient hc, URI uri, Ad ad, String method) {
 		if (hc == null) hc = httpclient;
 		if (ad == null) ad = new Ad();
-		if (method == null) method = "GET";
+		if (method == null) method = "POST";
 		HttpRequestBase req;
 		method = method.toUpperCase();
 		HttpResponse resp;
 		
 		try {
-			ad = ad.put("user", cookie);
+			if(ad.containsKey("src")){
+				ad = ad.put("user", cookie)
+				.put("options.optimizer", xferOptimization)
+				.put("options.overwrite", overWrite)
+				.put("options.verify", fileIntegrity)
+				.put("options.encrypt", EdataChannel)
+				.put("options.compress", CdataChannel);
+				resetTransferOptions();
+			}
+			if(ad.containsKey("action")){
+				if(!ad.get("action").equals("login")){
+					ad = ad.put("user", cookie);
+				}
+			}
+			else{
+				System.out.println("ad.containsValue = login ?"+ad.containsValue("login"));
+				ad = ad.put("user", cookie);
+			}
 			
+			Log.v("Request Ad = ", ad.toString(true));
 			// Create HTTP request.
 			if (method.equals("GET")) {
 				String s = adToQueryString(ad);
@@ -127,17 +167,18 @@ public class Server {
 				((HttpPost) req).setEntity(adToMultipart(ad));
 				*/
 				req = new HttpPost(uri);
-				req.addHeader("Content-Type", "application/x-www-form-urlencoded");
-				((HttpPost) req).setEntity(new StringEntity(adToQueryString(ad)));
+				req.addHeader("Content-Type", "application/json");
+				((HttpPost) req).setEntity(new StringEntity(ad.toJSON()));
 			} else {
 				throw new RuntimeException("Invalid method: " + method);
 			}
 
 			// Send request.
-			Log.v("URI = " + method, req.getURI().toString());
-			Log.v("URI = " + method, req.toString());
+			//Log.v("URI = " + method, req.getURI().toString());
+			Log.v("Request URI = " + method, req.toString());
 			resp = hc.execute(req);
 			Log.v("Response", resp.toString());
+			
 			// Check that response was positive.
 			if (resp.getStatusLine().getStatusCode() / 100 != 2) {
 				String s = EntityUtils.toString(resp.getEntity());
@@ -148,14 +189,28 @@ public class Server {
 			resp.getEntity().consumeContent();
 			return s;
 		} catch (RuntimeException e) {
+			e.printStackTrace();
 			Log.v(TAG + " sendRequest", e.toString());
+			if(e.getMessage().contains("not resolve host"))
+				StorkClientActivity.showToast("Please check your internet connection");
 			throw e;
 		} catch (Exception e) {
+			e.printStackTrace();
 			Log.v(TAG + " sendRequest", e.toString());
+			if(e.getMessage().contains("not resolve host"))
+				StorkClientActivity.showToast("Please check your internet connection");
 			throw new RuntimeException(e);
 		}
 	}
 	
+	private static void resetTransferOptions() {
+		xferOptimization = false;
+		overWrite = false;
+		fileIntegrity = false;
+		EdataChannel = false;
+		CdataChannel = false;
+	}
+
 	/**
 	 * Sends a Job Progress request to the Stork server
 	 * 
@@ -166,11 +221,11 @@ public class Server {
 		try {
 			Map<Integer, Ad> map = new HashMap<Integer, Ad>();
 			Ad ad = sendRequest("/api/stork/q?status=all");
-			for (Entry<Object, AdObject> e : ad.entrySet()) {
-				Ad a = e.getValue().asAd();
+			for (Ad a : ad.getAds()) {
 				map.put(a.getInt("job_id"), a);
 			} return map;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 	}
@@ -197,9 +252,39 @@ public class Server {
 	} public static Ad getListings(HttpClient hc, TreeView tv, Ad opts) {
 		if (opts == null)
 			opts = new Ad();
-		opts.put("uri", tv.getURI().toASCIIString());
+		
+		// Fixes the problem with the URI not containing a trailing slash.
+		String uri = tv.getURI().toASCIIString();
+		if (!uri.endsWith("/"))
+			uri += "/";
+		
+		opts.put("uri", uri);
 		opts.put("cred", tv.getCred());
 		opts.put("depth", 1);
 		return sendRequest("/api/stork/ls", opts);
+	}
+	public static boolean isWalledGardenConnection() {
+	    HttpURLConnection urlConnection = null;
+	    
+	    try {
+	        URL url = new URL(mWalledGardenUrl); // "http://clients3.google.com/generate_204"
+	        urlConnection = (HttpURLConnection) url.openConnection();
+	        urlConnection.setInstanceFollowRedirects(false);
+	        urlConnection.setConnectTimeout(WALLED_GARDEN_SOCKET_TIMEOUT_MS);
+	        urlConnection.setReadTimeout(WALLED_GARDEN_SOCKET_TIMEOUT_MS);
+	        urlConnection.setUseCaches(false);
+	        urlConnection.getInputStream();
+	        // We got a valid response, but not from the real google
+	        Log.v("Response code", urlConnection.getResponseCode()+"");
+	        return urlConnection.getResponseCode() == 204;
+	    } catch (IOException e) {
+	            Log.v("Walled garden check - probably not a portal: exception ", e.toString());
+	        return false;
+	    } finally {
+	        if (urlConnection != null) {
+	        	Log.v("urlConnection", "disconnected");
+	        	urlConnection.disconnect();
+	        }
+	    }
 	}
 }

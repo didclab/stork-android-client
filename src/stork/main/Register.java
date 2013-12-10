@@ -21,25 +21,23 @@ public class Register extends Activity {
 		setContentView(R.layout.register);
 		context = Register.this;
 		final EditText email = (EditText) findViewById(R.id.email);
-		final EditText username = (EditText) findViewById(R.id.RuserName);
 		final EditText password = (EditText) findViewById(R.id.Rpass);
-		Log.v("User", username.toString());
 		Log.v("password", password.toString());
 		Button registerButton = (Button) findViewById(R.id.register);
 		registerButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				try {
 					String email1 = email.getText().toString();
-					String user = username.getText().toString();
 					String pass = password.getText().toString();
-					Log.v("User", user);
 					Log.v("password", pass);
-					if (validate(user, pass, email1)) {
+					if (validate(pass, email1)) {
 						Ad ad = new Ad("email", email1);
 						ad.put("password", pass);
 						ad.put("action", "register");
 						Thread t = asyncFetchCookie(ad);
 						t.run();
+						if(Server.cookie!=null)
+							finish();
 					}
 				} catch (Exception e) {
 					showToast(e.getMessage());
@@ -51,16 +49,12 @@ public class Register extends Activity {
 			Log.v("Register", e.toString());
 		}
 	}
-	private boolean validate(String user, String pass, String email1) {
-		if (user.length() > 0 && pass.length() >= 6 && isValidEmail(email1)) {
+	private boolean validate(String pass, String email1) {
+		if ( pass.length() >= 6 && isValidEmail(email1)) {
 			return true;
 		} else {
 			if (isValidEmail(email1) == false) {
 				showToast("Invalid email id");
-				return false;
-			}
-			if (user.length() == 0) {
-				showToast("Invalid user Name");
 				return false;
 			}
 			if (pass.length() < 6) {

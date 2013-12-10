@@ -1,20 +1,21 @@
 package stork.listeners;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
+import stork.Server;
+import stork.adapter.ProgressListAdapter;
+import stork.framework.ProgressView;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
-import stork.DatabaseWrapper;
-import stork.Server;
-import stork.adapter.ProgressListAdapter;
-import stork.framework.ProgressView;
 
 public class ProgressMenuClickListener implements
-		DialogInterface.OnClickListener {
+DialogInterface.OnClickListener {
 	Context context;
 	Long jobId;
 	ProgressListAdapter pla;
@@ -27,75 +28,95 @@ public class ProgressMenuClickListener implements
 		this.progress = progress;
 	}
 
-	
+
 	public void onClick(DialogInterface dialog, int which) {
 
 		System.out.println("Choice : " + which);
 
 		switch (which) {
 		case 0: {
-			String[] details = new String[4];
+			LinkedList <String> details = new LinkedList<String>();
 			boolean found = false;
 			for(ProgressView p : progress){
-				if(p.getJobID() == jobId){
+				if(p.job_id == jobId){
 					found = true;
-					details[0] = "Job ID: " + Long.toString(p.getJobID());
-					details[1] = "Source: " + p.getServer_one();
-					details[2] = "Destination: " + p.getServer_two();
-					details[3] = "Progress: " + Integer.toString(p.getProgress());
+					details.add("Job ID: " + p.job_id);
+					for(String u : p.src.uri)
+						details.add("Source: " +u);	
+					details.add("Destination: " + p.dest.uri[0]);
+					details.add("Progress: " + p.getProgress());
 					break;
 				}
 			}
-			
-		
+
 			if(found){
-			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-	        builder.setTitle("Job Details");
-			builder.setItems(details, null);
-	        AlertDialog alert = builder.create();
-	        
-	      //set width n height
-		    WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-		    lp.copyFrom(alert.getWindow().getAttributes());
-		    lp.width = WindowManager.LayoutParams.FILL_PARENT;
-		    lp.height = WindowManager.LayoutParams.FILL_PARENT;
-		    alert.show();
-		    alert.getWindow().setAttributes(lp);
+				AlertDialog.Builder builder = new AlertDialog.Builder(context);
+				builder.setTitle("Job Details");
+				builder.setItems(details.toArray(new String[details.size()]), null);
+				AlertDialog alert = builder.create();
+
+				//set width n height
+				WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+				lp.copyFrom(alert.getWindow().getAttributes());
+				lp.width = WindowManager.LayoutParams.FILL_PARENT;
+				lp.height = WindowManager.LayoutParams.FILL_PARENT;
+				alert.show();
+				alert.getWindow().setAttributes(lp);
 			}
 			break;
-			
+
 		}
 		case 1: {
 			String status = Server.sendJobCancelRequest(jobId);
 			Log.e (getClass().getSimpleName(),"Stork Status : " + status);
 		}
-		case 2: {
+		case 2 : {
+			String message = "";
+			for(ProgressView p : progress){
+				if(p.job_id == jobId && p.message!=null){
+					message= p.message;
+					break;
+				}
+				else {
+					message = "No message from server";
+				}
+			}
+			
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			builder.setTitle("Message");
+			builder.setMessage(message);
+			AlertDialog alert = builder.create();
+
+			//set width n height
+			WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+			lp.copyFrom(alert.getWindow().getAttributes());
+			lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
+			lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+			alert.show();
+			alert.getWindow().setAttributes(lp);
+
+			break;
+		}
+		case 3: {//close
+			break;
+		}
+		case 4: {//Remove the job from the list
 			try
 			{
-			DatabaseWrapper dbHelper = new DatabaseWrapper(context.getApplicationContext());
-			boolean success = dbHelper.onDelete(jobId);
-			dbHelper.close();
-			if(success)			Log.v (getClass().getSimpleName(),"deleted the job");
-			else 				Log.e (getClass().getSimpleName(),"Unable to delete the job");
-			Toast.makeText(context, "Deleted? : " + success, Toast.LENGTH_SHORT).show();
-			if(success) {
-				int i=0;
-				for(i=0;i<progress.size();i++){
-					if(progress.get(i).getJobID() == jobId) break;
+				ListIterator<ProgressView> it = progress.listIterator();
+				while(it.hasNext()) {
+					if(it.next().job_id == jobId) {
+						it.remove();
+						break;
+					}
 				}
-				// i has to be less than progress.size() since the job Id exists
-				progress.remove(i);
 				pla.notifyDataSetChanged();
-			}
 			}//end of try
 			catch(Exception e)
 			{
 				Log.v(getClass().getSimpleName(), e.toString());
 				Toast.makeText(context, e.toString(),Toast.LENGTH_SHORT).show();
 			}
-			break;
-		}
-		case 3: {
 			break;
 		}
 		default:

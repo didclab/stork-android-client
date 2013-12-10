@@ -1,21 +1,27 @@
 package stork.server;
 
-import java.net.URI;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
-import stork.ad.Ad;
-import android.os.AsyncTask;
-import android.util.Log;
 import stork.Server;
 import stork.TreeView;
+import stork.ad.Ad;
+import stork.main.RowData;
+import android.os.AsyncTask;
+import android.util.Log;
 
 public class SendDAPFileTask extends AsyncTask<Void, Void, Ad> {
 	
-	TreeView  from, to;
+	List<TreeView> from;
+	TreeView  to;
 	Exception error;
+	ArrayList<RowData> options;
 	
-	public SendDAPFileTask(TreeView from, TreeView to) {
+	public SendDAPFileTask(List<TreeView> from, TreeView to, ArrayList<RowData> r) {
 		this.to = to;
 		this.from = from;
+		this.options = r;
 	}
 	
 	public String toString(){
@@ -25,14 +31,29 @@ public class SendDAPFileTask extends AsyncTask<Void, Void, Ad> {
 	protected Ad doInBackground(Void... params) {
 		return execute();
 	}
+	//{"src":{"uri":["ftp://storkcloud.org/doc1","ftp://storkcloud.org/doc2"]},"dest":{"uri":["ftp://storkcloud.org/"]},
+	//"options":{"optimizer":null,"overwrite":true,"verify":false,"encrypt":false,"compress":false}}
 	
 	public Ad execute() {
 		Log.v(getClass().getSimpleName(), "Sending job file...");
-
-		Ad ad = new Ad("src.uri",   from.getURI().toASCIIString())
-		          .put("src.cred",  from.getCred())
-		          .put("dest.uri",  to.getURI().toASCIIString())
-		          .put("dest.cred", to.getCred());
+		int counter = 0;
+		List<String> uri = new LinkedList<String>();
+		
+		while(counter < from.size()) {
+			uri.add(from.get(counter).getURI()+"");
+			counter++;
+		}
+		
+		Ad ad = new Ad("src.uri", uri)
+			.put("src.cred", from.get(0).getCred())
+			.put("dest.uri", to.getURI().toASCIIString())
+			.put("dest.cred", to.getCred());
+		Server.xferOptimization = options.get(0).isSelected();
+		Server.overWrite = options.get(1).isSelected();
+		Server.fileIntegrity = options.get(2).isSelected();
+		Server.EdataChannel = options.get(3).isSelected();
+		Server.CdataChannel = options.get(4).isSelected();
+		
 		return Server.sendRequest("/api/stork/submit", ad, "POST");
 	}
  }

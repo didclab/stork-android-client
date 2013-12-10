@@ -66,6 +66,7 @@ public class DatabaseWrapper extends SQLiteOpenHelper {
 	private boolean onInsert(String jobId, String one_url, String two_url) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues cv = new ContentValues();
+		Log.v("onInsert", "called");
 		cv.put(JOB_ID, jobId);
 		cv.put(SERVER_ONE, one_url);
 		cv.put(SERVER_TWO, two_url);
