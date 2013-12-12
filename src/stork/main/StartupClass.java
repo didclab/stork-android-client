@@ -217,16 +217,6 @@ public class StartupClass extends Activity {
 	}
 
 	@Override
-	protected void onResume() {
-		Log.v("StartupClass", "onResume Called");
-		super.onResume();
-		if (!isNetworkAvailable()) {
-			Log.v("inside", "Network unavailable");
-			alertbox("Network problem", "Network unavailable");
-		}
-	}
-
-	@Override
 	protected void onRestart() {
 		Log.v("StartupClass", "Restart Called");
 		if (!isNetworkAvailable()) {
@@ -234,24 +224,6 @@ public class StartupClass extends Activity {
 			alertbox("Network problem", "Network unavailable");
 		}
 		super.onRestart();
-	}
-
-	@Override
-	protected void onStop() {
-		Log.v("StartupClass", "onStop");
-		super.onStop();
-	}
-
-	@Override
-	protected void onPause() {
-		Log.v("StartupClass", "onPause Called");
-		super.onPause();
-	}
-
-	@Override
-	protected void onDestroy() {
-		Log.v("StartupClass Destroyed", "");
-		super.onDestroy();
 	}
 
 	private void typedLogin(StartupClass context, String uEmail, String pass) {

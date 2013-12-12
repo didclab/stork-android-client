@@ -37,7 +37,7 @@
             android:screenOrientation="landscape" >
         </activity>
         <activity
-            android:name="stork.Login"
+            android:name="stork.Credential"
             android:label="StorkCloud Android Client/MyProxy Details"
             android:screenOrientation="landscape" >
         </activity>

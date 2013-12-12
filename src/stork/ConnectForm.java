@@ -83,10 +83,9 @@ public class ConnectForm extends Activity {
 		pkey.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				ConnectForm context = ConnectForm.this;
-				Intent intent = new Intent(context, Login.class);
+				Intent intent = new Intent(context, Credential.class);
 				intent.putExtra("hi", "LCL");
 				startActivity(intent);
-				finish();
 			}
 		});
 	}//end of try
