@@ -6,7 +6,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import stork.ad.Ad;
 import stork.main.R;
 import stork.main.StorkClientActivity;
 import android.app.Activity;
@@ -34,15 +33,24 @@ public class ConnectForm extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.accessserver);
 
-		ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this,
+		ArrayAdapter<String> listServerUrl = new ArrayAdapter<String>(this,
 					android.R.layout.simple_dropdown_item_1line, listServerNames);//serverName
 		AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.serverName);
-		textView.setAdapter(adapter1);	
+		textView.setAdapter(listServerUrl);	
 		
 		final Spinner mySpinner = (Spinner) findViewById(R.id.spinner1);
+		
+		List<String> creds = Server.getCredentials(); 
+		if(creds == null || creds.isEmpty() || (creds.size() == 1 && creds.get(0).equals(""))){
+			creds = new ArrayList<String>();
+			creds.add("No Credentials"); 
+		} 
+		
+		
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-				this, android.R.layout.simple_spinner_item, Server.credentialKeys);
+				this, android.R.layout.simple_spinner_item, creds);
 		mySpinner.setAdapter(adapter);
+		
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		// Set click listener for the login button.
 		Button okButton = (Button) findViewById(R.id.loginbutton);

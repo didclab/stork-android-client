@@ -2,6 +2,7 @@ package stork.adapter;
 
 import java.util.List;
 
+
 import stork.framework.ProgressView;
 import stork.listeners.OnJobProgressClickListener;
 import stork.main.R;
@@ -44,22 +45,22 @@ public class ProgressListAdapter extends ArrayAdapter<ProgressView> {
 		protected ProgressBar progressbar;
 		protected TextView tv_progress;
 	}
+	
+	private ViewHolder viewHolder;
 
 	@Override
 	public View getView(final int position, View convertView, ViewGroup parent) {
-		View view = null;
 		if (convertView == null) {
-
 			// link up viewholder and list row layout
+			viewHolder = new ViewHolder();
 			LayoutInflater inflator = context.getLayoutInflater();
-			view = inflator.inflate(R.layout.rowprogresslayout, null);
-			final ViewHolder viewHolder = new ViewHolder();
-			viewHolder.progressbar = (ProgressBar) view.findViewById(R.id.progressBar);
-			viewHolder.tv_progress = (TextView) view.findViewById(R.id.tv_progress);
-			viewHolder.progressMessage = (TextView) view.findViewById(R.id.progressMessage);
-			viewHolder.jobID = (TextView) view.findViewById(R.id.jobID);
-			viewHolder.server1 = (TextView) view.findViewById(R.id.progressTextOne);
-			viewHolder.server2 = (TextView) view.findViewById(R.id.progressTextTwo);
+			convertView = inflator.inflate(R.layout.rowprogresslayout, null);
+			viewHolder.progressbar = (ProgressBar) convertView.findViewById(R.id.progressBar);
+			viewHolder.tv_progress = (TextView) convertView.findViewById(R.id.tv_progress);
+			viewHolder.progressMessage = (TextView) convertView.findViewById(R.id.progressMessage);
+			viewHolder.jobID = (TextView) convertView.findViewById(R.id.jobID);
+			viewHolder.server1 = (TextView) convertView.findViewById(R.id.progressTextOne);
+			viewHolder.server2 = (TextView) convertView.findViewById(R.id.progressTextTwo);
 			viewHolder.progressbar.setProgress(0);
 			viewHolder.progressbar.setMax(100);
 			
@@ -85,56 +86,55 @@ public class ProgressListAdapter extends ArrayAdapter<ProgressView> {
 				}
 			});
 			//set tag
-			view.setTag(viewHolder);
-		} else {
-			view = convertView;
+			convertView.setTag(viewHolder);
+		} else{
+			viewHolder = (ViewHolder) convertView.getTag();
 		}
-	
-		ViewHolder holder = (ViewHolder) view.getTag();
 		OnJobProgressClickListener jpListener = new OnJobProgressClickListener(getItem(position).job_id,this,progressList);
-		holder.progressbar.setOnClickListener(jpListener);
-		holder.progressMessage.setOnClickListener(jpListener);
-		holder.jobID.setOnClickListener(jpListener);
+		viewHolder.progressbar.setOnClickListener(jpListener);
+		viewHolder.progressMessage.setOnClickListener(jpListener);
+		viewHolder.jobID.setOnClickListener(jpListener);
+		
 		long jobID = progressList.get(position).job_id;
-		holder.jobID.setText(Long.toString(jobID));
+		viewHolder.jobID.setText(Long.toString(jobID));
 		int progress = progressList.get(position).getProgress();
 		int color = progressList.get(position).getColor();
 		String status = progressList.get(position).status;
 		String message = progressList.get(position).message;
-		if(message != null)
-			Log.v(jobID+"-"+"message", message);
 		
-		if (progress < 0) {
-			holder.progressbar.setProgress(progress);
-			holder.progressbar.setVisibility(View.VISIBLE);
+		Log.v(jobID+" status: ", status+" Color: "+color+" progress: "+progress);
+		
+		if (progress < 0 || status.equals("failed")) {
+			viewHolder.progressbar.setProgress(progress);
+			viewHolder.progressbar.setVisibility(View.VISIBLE);
 			if(!status.equals("processing"))
-				holder.progressbar.getProgressDrawable().setColorFilter(color, Mode.SRC_IN);
-			holder.tv_progress.setTextColor(Color.BLACK);
-			holder.tv_progress.setTypeface(null,Typeface.BOLD);
+				viewHolder.progressbar.getProgressDrawable().setColorFilter(color, Mode.SRC_IN);
+			viewHolder.tv_progress.setTextColor(Color.BLACK);
+			viewHolder.tv_progress.setTypeface(null,Typeface.BOLD);
 			//holder.tv_progress.setText(progress+"");
-			holder.tv_progress.setText(status);
+			viewHolder.tv_progress.setText(status);
 		} 
-		else{
-			holder.progressbar.setProgress(progress);
-			holder.progressMessage.setVisibility(View.INVISIBLE);
-			holder.progressbar.setVisibility(View.VISIBLE);
-			holder.tv_progress.setTextColor(Color.BLACK);
-			holder.tv_progress.setTypeface(null,Typeface.BOLD);
+		else{ 
+			viewHolder.progressbar.setProgress(progress);
+			viewHolder.progressMessage.setVisibility(View.INVISIBLE);
+			viewHolder.progressbar.setVisibility(View.VISIBLE);
+			viewHolder.tv_progress.setTextColor(Color.BLACK);
+			viewHolder.tv_progress.setTypeface(null,Typeface.BOLD);
 			
 			if(status.equals("removed") || status.equals("complete")){
-				holder.progressbar.getProgressDrawable().setColorFilter(color, Mode.SRC_IN);
-				holder.tv_progress.setText(status);
+				viewHolder.progressbar.getProgressDrawable().setColorFilter(color, Mode.SRC_IN);
+				viewHolder.tv_progress.setText(status);
 			}
 			else
-				holder.tv_progress.setText(progress+"%");
+				viewHolder.tv_progress.setText(progress+"%");
 		}
 		String srcDetails = "";
 		for(String u : progressList.get(position).src.uri)
 			srcDetails += "" +u+" ";	
-		holder.server1.setText(srcDetails);
-		holder.server2.setText(progressList.get(position).dest.uri[0]);
+		viewHolder.server1.setText(srcDetails);
+		viewHolder.server2.setText(progressList.get(position).dest.uri[0]);
 		notifyDataSetChanged();
-		return view;
+		return convertView;
 	}
 	@Override
 	public long getItemId(int position) {

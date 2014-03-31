@@ -3,7 +3,6 @@ package stork.main;
 import stork.Server;
 import stork.ad.Ad;
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -36,7 +35,7 @@ public class Register extends Activity {
 						ad.put("action", "register");
 						Thread t = asyncFetchCookie(ad);
 						t.run();
-						if(Server.cookie!=null)
+						if(Server.getCookie()!=null)
 							finish();
 					}
 				} catch (Exception e) {
@@ -73,9 +72,9 @@ public class Register extends Activity {
 		return new Thread() {
 			public void run() {
 				try {
-					Server.cookie = Server.sendRequest("/api/stork/user", ad,
-							"POST");
-					Log.v("Cookie", Server.cookie.toString());
+					Ad a = Server.sendRequest("/api/stork/user", ad, "POST");
+					Server.setCookie(a); 
+					Log.v("Cookie", Server.getCookie().toString());
 				} catch (final Exception e) {
 					throw new RuntimeException(e.getMessage());
 				}

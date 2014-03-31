@@ -21,90 +21,84 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class JobProgressActivity extends Activity  {
+public class JobProgressActivity extends Activity {
 	ArrayAdapter<ProgressView> adapter;
 	ListView lv;
-	Timer timer;
+	Timer mTimer;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		try
-		{
+		try {
 			super.onCreate(savedInstanceState);
 			this.setContentView(R.layout.progressrow);
-			adapter = new ProgressListAdapter(this, new ArrayList<ProgressView>(), R.layout.rowprogresslayout);
+			adapter = new ProgressListAdapter(this,
+					new ArrayList<ProgressView>(), R.layout.rowprogresslayout);
 			adapter.setNotifyOnChange(true);
 			getData(adapter);
 
 			lv = (ListView) findViewById(R.id.progresslistview);
 			lv.setAdapter(adapter);
 			adapter.sort(new Comparator<ProgressView>() {
-			    public int compare(ProgressView arg0, ProgressView arg1) {
-			    	long one = arg0.job_id;
-			    	long two = arg1.job_id;
-			    	long returnVal = (two - one);
-			    	Long l = Long.valueOf(returnVal);
+				public int compare(ProgressView arg0, ProgressView arg1) {
+					long one = arg0.job_id;
+					long two = arg1.job_id;
+					long returnVal = (two - one);
+					Long l = Long.valueOf(returnVal);
 					Integer ret = l != null ? l.intValue() : null;
-			        return ret;
-			    }
+					return ret;
+				}
 			});
 			adapter.notifyDataSetChanged();
-			
-			Toast.makeText(getApplicationContext(), "Touch Job ID for Details, Cancel or Remove Job", Toast.LENGTH_LONG).show();
-			
-			//fetching the jobs submitted after every 10 seconds...
-			timer = new Timer();
-			timer.scheduleAtFixedRate(new TimerTask(){
-				public void run()
-				{
-					try
-					{
-						runOnUiThread(new  Runnable() {
+
+			Toast.makeText(getApplicationContext(),
+					"Touch Job ID for Details, Cancel or Remove Job",
+					Toast.LENGTH_LONG).show();
+
+			// fetching the jobs submitted after every 10 seconds...
+			mTimer = new Timer();
+			mTimer.scheduleAtFixedRate(new TimerTask() {
+				public void run() {
+					try {
+						runOnUiThread(new Runnable() {
 							public void run() {
 								System.out.println("running...");
 								getData(adapter);
 								adapter.sort(new Comparator<ProgressView>() {
-								    public int compare(ProgressView arg0, ProgressView arg1) {
-								    	long one = arg0.job_id;
-								    	long two = arg1.job_id;
-								    	long returnVal = (two - one);
-								    	Long l = Long.valueOf(returnVal);
-										Integer ret = l != null ? l.intValue() : null;
-								        return ret;
-								    }
+									public int compare(ProgressView arg0,
+											ProgressView arg1) {
+										long one = arg0.job_id;
+										long two = arg1.job_id;
+										long returnVal = (two - one);
+										Long l = Long.valueOf(returnVal);
+										Integer ret = l != null ? l.intValue()
+												: null;
+										return ret;
+									}
 								});
 								adapter.notifyDataSetChanged();
 								lv.invalidateViews();
 							}
 						});
-					}
-					catch(Exception e)
-					{
+					} catch (Exception e) {
 						Log.v(getLocalClassName(), e.toString());
 					}
 				}
-			}, 6000,6000);
-		}
-		catch(Exception e)
-		{
+			}, 6000, 6000);
+		} catch (Exception e) {
 			e.printStackTrace();
 			Log.e(getClass().getSimpleName(), e.toString());
 		}
 	}
-
 
 	@Override
 	/**
 	 * Menu options. TODO remove for ICS compatibility
 	 */
 	public boolean onCreateOptionsMenu(Menu menu) {
-		try
-		{
+		try {
 			MenuInflater inflater = getMenuInflater();
 			inflater.inflate(R.menu.progressmenu, menu);
-		}
-		catch(Exception e)
-		{
+		} catch (Exception e) {
 			Log.v(getLocalClassName(), e.toString());
 		}
 		return true;
@@ -118,28 +112,22 @@ public class JobProgressActivity extends Activity  {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.goBack: {
-			try
-			{
+			try {
 				Intent intent = new Intent();
 				setResult(RESULT_OK, intent);
 				finish();
 				return true;
-			}
-			catch(Exception e)
-			{
+			} catch (Exception e) {
 				Log.v(getLocalClassName(), e.toString());
 			}
 		}
 		case R.id.goStartAgain: {
-			try
-			{
+			try {
 				Intent intent = getIntent();
 				finish();
 				startActivity(intent);
 				return true;
-			}
-			catch(Exception e)
-			{
+			} catch (Exception e) {
 				Log.v(getLocalClassName(), e.toString());
 			}
 		}
@@ -154,35 +142,33 @@ public class JobProgressActivity extends Activity  {
 	 * @param adapter
 	 */
 	public void getData(ArrayAdapter<ProgressView> adapter) {
-		
+
 		// Get the listing from Stork.\
-		adapter.clear(); 
-		try
-		{
+		adapter.clear();
+		try {
 			Map<Integer, Ad> queue = Server.getQueue();
-			
+
 			if (queue == null)
 				return;
-			// For everything in the map, put ProgressView in list. 
+			// For everything in the map, put ProgressView in list.
 			for (Ad ad : queue.values()) {
 				ProgressView pv = ad.unmarshalAs(ProgressView.class);
-				adapter.insert(pv,0);
+				adapter.insert(pv, 0);
 			}
 			adapter.notifyDataSetChanged();
-		}
-		catch(Exception e)
-		{
+		} catch (Exception e) {
 			Log.v(getLocalClassName(), e.toString());
 		}
 	}
-	
 
 	@Override
-	public void onPause(){
-			super.onPause();
+	public void onPause() {
+		super.onPause();
+		mTimer.cancel();
 	}
+
 	@Override
-	public void onRestart(){
-			super.onRestart();
+	public void onRestart() {
+		super.onRestart();
 	}
 }

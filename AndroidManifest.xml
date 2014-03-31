@@ -4,63 +4,76 @@
     android:versionCode="2"
     android:versionName="2.0" >
 
+    <!-- we can specify the permissions to our app by using the Application level permissions <permission> tag and name,
+    description and label values and also including the name of the permission in the applications tag 
+    below -->
+    
     <uses-sdk
         android:maxSdkVersion="12"
-        android:minSdkVersion="8" />
+        android:minSdkVersion="8" 
+        /> <!-- uses development tools for compiling the source code 
+        android:screenOrientation="landscape" -->
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-    <application android:icon="@drawable/stork_icon" >
+    <application android:icon="@drawable/stork_icon" 
+        android:theme="@android:style/Theme.Holo">
         <activity
             android:name="stork.main.StorkClientActivity"
             android:label="@string/app_name"
-            android:screenOrientation="landscape"
-            >
+             >
         </activity>
-        
         <activity
             android:name="stork.JobProgressActivity"
             android:label="@string/jobprogress"
-            android:screenOrientation="landscape" >
+            >
         </activity>
         <activity
             android:name="stork.Configuration"
             android:label="@string/config"
-            android:screenOrientation="landscape" >
+            >
         </activity>
         <activity
             android:name="stork.SelectCredential"
-            android:label="@string/ProtocolS"
-            android:screenOrientation="landscape" >
+            android:label="@string/myproxy"
+            >
         </activity>
         <activity
             android:name="stork.Credential"
-            android:label="StorkCloud Android Client/MyProxy Details"
-            android:screenOrientation="landscape" >
+            android:label="@string/myproxy"
+            >
         </activity>
-         <activity
+        <activity
             android:name="stork.main.Register"
-            android:label="StorkCloud Android Client/Register"
-            android:screenOrientation="landscape" >
+            android:label="@string/register"
+             >
         </activity>
         <activity
             android:name="stork.ConnectForm"
-            android:label="StorkCloud Android Client"
-            android:screenOrientation="landscape"  >    
+            android:label="@string/connectForm"
+             >
         </activity>
-        <activity android:name="stork.main.StartupClass"
-            android:label="StorkCloud Android Client"
-            android:screenOrientation="landscape"
-            >
-               <intent-filter>
+        <activity
+            android:name="stork.main.StartupClass"
+            android:label="@string/app_name"
+            android:noHistory="true"
+             >
+        </activity>
+        <activity
+            android:name="stork.main.SplashActivity"
+            android:label="@string/app_name" 
+            android:noHistory="true"
+             >
+             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            
         </activity>
-        
     </application>
 
 </manifest>

@@ -40,16 +40,16 @@
             android:layout_weight="0"
             android:contentDescription="Transfer12"
             android:visibility="invisible"
-            android:src="@drawable/arrow_right" />
+            android:src="@drawable/arrow_down" />
         
-         <ImageButton
-            android:id="@+id/transfer21"
+           <TextView
+            android:id="@+id/server_header_right"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:contentDescription="Transfer21"
+            android:layout_height="30dp"
+            android:layout_weight="1"
             android:visibility="invisible"
-            android:src="@drawable/arrow_left" />
+            android:text="@string/source"
+            android:textSize="18sp" />
         
           <TextView
             android:id="@+id/dummy"
@@ -60,14 +60,15 @@
             android:text="@string/source"
             android:textSize="18sp" />
          
-           <TextView
-            android:id="@+id/server_header_right"
+           
+            <ImageButton
+            android:id="@+id/transfer21"
             android:layout_width="wrap_content"
-            android:layout_height="30dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:contentDescription="Transfer21"
             android:visibility="invisible"
-            android:text="@string/source"
-            android:textSize="18sp" />
+            android:src="@drawable/arrow_up" />
         
       
       <!-- Below ImageView added to hold a  

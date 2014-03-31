@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/relLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:isScrollContainer="true"
+    android:scrollbars="horizontal|vertical" 
+    android:clickable="true">
+
+    <ImageView
+        android:id="@+id/row_icon"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:contentDescription="@string/icon_description"
+        android:src="@drawable/folder" />
+
+    <TextView
+        android:id="@+id/label"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/CheckBox01"
+        android:layout_toRightOf="@id/row_icon"
+          android:textSize="20dp" >
+     </TextView>
+       <!--   android:text="@+id/label" -->
+
+    <ProgressBar
+        android:id="@+id/progressBarLoadingDir"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginTop="9dp"
+        android:layout_toLeftOf="@+id/CheckBox01"
+        android:visibility="invisible" />
+
+    <CheckBox
+        android:id="@+id/CheckBox01"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:focusable="false"  
+        android:focusableInTouchMode="false"
+        android:button="@drawable/checkbox" >
+    </CheckBox>
+<!-- the above two lines have been newly added, i mean the focussable lines inside the checkbox-->
+</RelativeLayout>

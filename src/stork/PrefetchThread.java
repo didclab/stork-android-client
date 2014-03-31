@@ -1,13 +1,10 @@
 package stork;
 
-import java.net.URI;
-
-import ch.boye.httpclientandroidlib.client.HttpClient;
-
-import stork.main.StorkClientActivity;
-import android.util.Log;
 import stork.ad.Ad;
 import stork.cache.Cache;
+import stork.main.StorkClientActivity;
+import android.util.Log;
+import ch.boye.httpclientandroidlib.client.HttpClient;
 
 public class PrefetchThread extends Thread {
 	//	public static Map<URI, Future<List<String>[]>> current_requests =

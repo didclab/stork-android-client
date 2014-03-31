@@ -61,7 +61,7 @@ public class Watch {
         	         String.format("%dns", n);
   }
 
-  // Start (or restart) the timer.
+  // Start (or restart) the mTimer.
   public synchronized Watch start() {
     start_time = now();
     end_time = -1;
@@ -78,7 +78,7 @@ public class Watch {
 	return (double)elapsed()/1E9;
   }
 
-  // Stop the timer.
+  // Stop the mTimer.
   public synchronized long stop() {
     end_time = now();
     return end_time-start_time;
@@ -88,7 +88,7 @@ public class Watch {
   public long startTime() { return start_time; }
   public long endTime()   { return end_time; }
 
-  // Check if the timer is started/stopped.
+  // Check if the mTimer is started/stopped.
   public synchronized boolean isStarted() { return start_time != -1; }
   public synchronized boolean isStopped() { return end_time != -1; }
 

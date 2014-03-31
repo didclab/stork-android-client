@@ -23,10 +23,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,6 +37,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class StorkClientActivity extends Activity {
@@ -81,25 +83,13 @@ public class StorkClientActivity extends Activity {
 				return;
 			}
 			// Spawn a thread to fetch the creds.
-			new Thread() {
-				public void run() {
-					Ad ad = Server.sendRequest("/api/stork/info?type=cred",
-							null, "POST");
-					System.out.println(ad.toString());
-					Server.credentialKeys.clear();
-					Server.credentialKeys.add("");
-					for (String s : ad.keySet()) {
-						Server.credentialKeys.add(s);
-					}
-				}
-			}.start();
+			new FetchCredentials().execute(null, null);
 
 			// Grab the views for both lists.
 			lc[0] = new TreeViewRoot("left",
 					(ViewGroup) findViewById(R.id.left));
 			lc[1] = new TreeViewRoot("right",
 					(ViewGroup) findViewById(R.id.right));
-			System.out.println("lc[0] lc[1] set to default!");
 			if(saveState != null) {
 				String temp = saveState.getString("lc[0]");
 				Log.v("URI1", temp + "");
@@ -317,19 +307,19 @@ public class StorkClientActivity extends Activity {
 		return listToReturn;
 	}
 
-	final static Handler toaster = new Handler();
-
 	public static void showToast(String msg) {
 		showToast(msg, false);
 	}
 
 	public static void showToast(final String msg, boolean is_long) {
 		final int l = (is_long) ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT;
-		toaster.post(new Runnable() {
-			public void run() {
-				Toast.makeText(context, msg, l).show();
-			}
-		});
+		Toast toast = new Toast(context);
+		toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+		toast.setDuration(l);
+		TextView v = (TextView) context.findViewById(R.id.toasttext);
+		v.setText(msg);
+		toast.setView(context.getLayoutInflater().inflate(R.layout.customtoast, null));
+		toast.show();
 	}
 
 	private boolean isNetworkAvailable() {
@@ -359,10 +349,21 @@ public class StorkClientActivity extends Activity {
 		if(lc[1].uri != null) saveState.putString("lc[1]", lc[1].uri + "");
 		super.onSaveInstanceState(saveState);
 	}
+	
+	private class FetchCredentials extends AsyncTask<Void, Void, Void>{
 
-	@Override
-	protected void onRestoreInstanceState(Bundle saveState) {
-		super.onRestoreInstanceState(saveState);
-
+		@Override
+		protected Void doInBackground(Void... params) {
+			Ad ad = Server.sendRequest("/api/stork/info?type=cred",
+					null, "POST");	
+			System.out.println(ad.toString());
+			Server.getCredentials().clear();
+			Server.getCredentials().add("");
+			for (String s : ad.keySet()) {
+				Server.getCredentials().add(s);
+			}
+			return null;
+		}
+		
 	}
 }

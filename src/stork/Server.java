@@ -1,5 +1,6 @@
 package stork;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -10,13 +11,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import stork.ad.*;
+import stork.ad.Ad;
+import stork.ad.AdObject;
 import stork.main.StorkClientActivity;
 import android.annotation.SuppressLint;
+import android.os.AsyncTask;
 import android.util.Log;
+import ch.boye.httpclientandroidlib.HttpEntity;
 import ch.boye.httpclientandroidlib.HttpResponse;
+import ch.boye.httpclientandroidlib.HttpVersion;
+import ch.boye.httpclientandroidlib.client.ClientProtocolException;
 import ch.boye.httpclientandroidlib.client.HttpClient;
 import ch.boye.httpclientandroidlib.client.methods.HttpGet;
 import ch.boye.httpclientandroidlib.client.methods.HttpPost;
@@ -24,6 +29,8 @@ import ch.boye.httpclientandroidlib.client.methods.HttpRequestBase;
 import ch.boye.httpclientandroidlib.entity.StringEntity;
 import ch.boye.httpclientandroidlib.entity.mime.HttpMultipartMode;
 import ch.boye.httpclientandroidlib.entity.mime.MultipartEntity;
+import ch.boye.httpclientandroidlib.entity.mime.content.ContentBody;
+import ch.boye.httpclientandroidlib.entity.mime.content.FileBody;
 import ch.boye.httpclientandroidlib.entity.mime.content.StringBody;
 import ch.boye.httpclientandroidlib.impl.client.DecompressingHttpClient;
 import ch.boye.httpclientandroidlib.impl.client.DefaultHttpClient;
@@ -31,35 +38,44 @@ import ch.boye.httpclientandroidlib.impl.conn.PoolingClientConnectionManager;
 import ch.boye.httpclientandroidlib.impl.conn.SchemeRegistryFactory;
 import ch.boye.httpclientandroidlib.params.BasicHttpParams;
 import ch.boye.httpclientandroidlib.params.CoreConnectionPNames;
+import ch.boye.httpclientandroidlib.params.CoreProtocolPNames;
 import ch.boye.httpclientandroidlib.params.HttpParams;
 import ch.boye.httpclientandroidlib.util.EntityUtils;
 
-/**
- * Class used to contact with rest api(s). TODO port to async classes for
- * multi-threading env
- * 
- * ftp://23.20.170.141
- */
 public class Server {
-	public static String TAG = Server.class.getSimpleName();
-	static volatile int request_count = 1;
-	static URI stork_uri = URI.create("http://didclab-ws4.cse.buffalo.edu");//storkcloud.org
-	public static volatile HttpClient httpclient;
-	public static List<String> credentialKeys = new ArrayList<String>();
-	public static Ad cookie = new Ad();
-	//private static ClientConnectionManager conman =
-		//	new PoolingClientConnectionManager();
-	private final static String mWalledGardenUrl = "http://clients3.google.com/generate_204";
+	public static final String TAG = Server.class.getSimpleName();
+	private static final URI stork_uri = URI.create("https://storkcloud.org");
+	private static volatile HttpClient httpclient;
+	private static List<String> credentialKeys = new ArrayList<String>();
+	private static Ad cookie = new Ad();
+	private static final String mWalledGardenUrl = "http://clients3.google.com/generate_204"; //for overcoming the firewall.
 	private static final int WALLED_GARDEN_SOCKET_TIMEOUT_MS = 10000;
-	static  {
-		httpclient = createHttpClient();
-		credentialKeys.add("");
-	}
+	
 	public static boolean overWrite = false;
 	public static boolean xferOptimization = false;
 	public static boolean fileIntegrity = false;
 	public static boolean EdataChannel = false;
 	public static boolean CdataChannel = false;
+	
+	public URI getStorkUri(){
+		return stork_uri;
+	}
+	
+	public static List<String> getCredentials(){
+		return credentialKeys;
+	}
+	public static void setCookie(Ad ad){
+		if(ad != null){
+			cookie = ad;
+		}
+	}
+	public static Ad getCookie(){
+		return cookie;
+	}
+	static{
+		httpclient = createHttpClient();
+		credentialKeys.add("");
+	}
 	
 	public static HttpClient createHttpClient() {
 		HttpParams params = new BasicHttpParams();
@@ -69,7 +85,6 @@ public class Server {
 		cxMgr.setMaxTotal(30);//earlier it was set to 100 which worked fine
 		cxMgr.setDefaultMaxPerRoute(20);
 		return new DecompressingHttpClient(new DefaultHttpClient(cxMgr, params));
-		//return new DefaultHttpClient();
 	}
 
 	// Helper methods for converting ads to HttpClient parameters.
@@ -128,7 +143,7 @@ public class Server {
 		if (method == null) method = "POST";
 		HttpRequestBase req;
 		method = method.toUpperCase();
-		HttpResponse resp;
+		
 		
 		try {
 			if(ad.containsKey("src")){
@@ -166,6 +181,7 @@ public class Server {
 				req.addHeader("Content-Type", "multipart/form-data");
 				((HttpPost) req).setEntity(adToMultipart(ad));
 				*/
+				System.out.println("uri = "+uri);
 				req = new HttpPost(uri);
 				req.addHeader("Content-Type", "application/json");
 				((HttpPost) req).setEntity(new StringEntity(ad.toJSON()));
@@ -173,10 +189,14 @@ public class Server {
 				throw new RuntimeException("Invalid method: " + method);
 			}
 
-			// Send request.
-			//Log.v("URI = " + method, req.getURI().toString());
-			Log.v("Request URI = " + method, req.toString());
+			/* Send request.
+			String s = new SendRequest().execute(req, hc).get(3, TimeUnit.SECONDS);
+			return s;*/
+			HttpResponse resp;
+			Log.v("URI = ", req.toString());
+		
 			resp = hc.execute(req);
+			
 			Log.v("Response", resp.toString());
 			
 			// Check that response was positive.
@@ -188,11 +208,11 @@ public class Server {
 			String s = EntityUtils.toString(resp.getEntity());
 			resp.getEntity().consumeContent();
 			return s;
+		
 		} catch (RuntimeException e) {
 			e.printStackTrace();
 			Log.v(TAG + " sendRequest", e.toString());
-			if(e.getMessage().contains("not resolve host"))
-				StorkClientActivity.showToast("Please check your internet connection");
+			StorkClientActivity.showToast(e.getMessage());
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -201,7 +221,71 @@ public class Server {
 				StorkClientActivity.showToast("Please check your internet connection");
 			throw new RuntimeException(e);
 		}
+		
 	}
+	
+	//Uploading files from the client to a remote server.
+	private static class SendRequest extends AsyncTask<Object, Void, String>{
+
+		@Override
+		protected String doInBackground(Object... objs) {
+			try {
+			HttpRequestBase req = (HttpRequestBase) objs[0];
+			HttpClient hc = (HttpClient) objs[1];
+			HttpResponse resp;
+			Log.v("URI = ", req.toString());
+		
+			resp = hc.execute(req);
+			
+			Log.v("Response", resp.toString());
+			
+			// Check that response was positive.
+			if (resp.getStatusLine().getStatusCode() / 100 != 2) {
+				String s = EntityUtils.toString(resp.getEntity());
+				throw new RuntimeException("error: "+s);
+			}
+			// Get the response entity.
+			String s = EntityUtils.toString(resp.getEntity());
+			return s;
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(String v){
+			super.onPostExecute(v);
+		}
+		
+	}
+	
+	public static void upload(HttpClient hc, String filepath)
+    {
+      try
+      {
+        hc.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
+
+        HttpPost httppost = new HttpPost("youe url");
+        File file = new File(filepath);
+        MultipartEntity mpEntity = new MultipartEntity();
+        ContentBody cbFile = new FileBody(file, " -mime type here!-image/jpeg");
+        mpEntity.addPart("userfile", cbFile);
+        httppost.setEntity(mpEntity);
+
+        HttpResponse response = hc.execute(httppost);
+        HttpEntity resEntity = response.getEntity();
+        //Server response...
+      }
+      catch(Exception e)
+      {
+        e.printStackTrace();
+      }
+   }
 	
 	private static void resetTransferOptions() {
 		xferOptimization = false;

@@ -5,16 +5,13 @@ import stork.Server;
 import stork.ad.Ad;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -29,111 +26,97 @@ public class StartupClass extends Activity {
 	private boolean textedited = false;
 
 	protected void onCreate(Bundle savedInstanceState) {
-		try {
-			context = this;
-			super.onCreate(savedInstanceState);
+		context = this;
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.startup);
+		final EditText email = (EditText) findViewById(R.id.getEmail);
+		final EditText password = (EditText) findViewById(R.id.getPassword);
+		final CheckBox rememberMe = (CheckBox) findViewById(R.id.rememberMe);
+		loginPreferences = getSharedPreferences("loginPrefs", MODE_PRIVATE);
+		loginPrefsEditor = loginPreferences.edit();
+		saveLogin = loginPreferences.getBoolean("saveLogin", false);
 
-			if (!isNetworkAvailable()) {
-				Log.v("Network is unavailable", "Startup Class");
-				alertbox("Network problem", "Network unavailable");
-				return;
-			} else {
-				setContentView(R.layout.startup);
-				final EditText email = (EditText) findViewById(R.id.getEmail);
-				final EditText password = (EditText) findViewById(R.id.getPassword);
-				final CheckBox rememberMe = (CheckBox) findViewById(R.id.rememberMe);
-				loginPreferences = getSharedPreferences("loginPrefs",
-						MODE_PRIVATE);
-				loginPrefsEditor = loginPreferences.edit();
-				saveLogin = loginPreferences.getBoolean("saveLogin", false);
-
-				if (saveLogin) {
-					getCookie(email, password, rememberMe);
-				}
-				email.addTextChangedListener(new TextWatcher() {
-					@Override
-					public void afterTextChanged(Editable s) {
-						textedited = true;
-					}
-
-					@Override
-					public void beforeTextChanged(CharSequence s, int start,
-							int count, int after) {
-					}
-
-					@Override
-					public void onTextChanged(CharSequence s, int start,
-							int before, int count) {
-						textedited = true;
-					}
-				});
-
-				final Button submitButton = (Button) findViewById(R.id.StartupSubmit);
-				submitButton.setOnClickListener(new View.OnClickListener() {
-					public void onClick(View v) {
-						v.performHapticFeedback(VIRTUAL_KEY);
-						StartupClass context = StartupClass.this;
-						String uEmail = email.getText().toString();
-						String pass = password.getText().toString();
-						try {
-							if (saveLogin) {
-								if (uEmail.equals(Server.cookie.get("email"))
-										&& textedited == false) {
-									// login with the last stored information
-									Ad ad = new Ad(Server.cookie).put("action",
-											"login");
-									Thread t = asyncFetchCookie(ad);
-									t.run();
-									Intent intent = new Intent(context,
-											StorkClientActivity.class);
-									startActivity(intent);
-								} else {// consider the typed info
-									if (validate(uEmail, pass)) {
-										typedLogin(context, uEmail, pass);
-									}
-								}
-							} else {
-								// consider the typed info
-								if (validate(uEmail, pass)) {
-									typedLogin(context, uEmail, pass);
-								}
-							}
-							if (rememberMe.isChecked()) {
-								setCookie();
-							} else {
-								loginPrefsEditor.clear();
-								loginPrefsEditor.commit();
-							}
-						} catch (Exception e) {
-							Toast.makeText(StartupClass.this, e.getMessage(),
-									Toast.LENGTH_SHORT).show();
-						}
-					}
-				});
-
-				Button registerButton = (Button) findViewById(R.id.StartupRegister);
-				registerButton.setOnClickListener(new View.OnClickListener() {
-					public void onClick(View v) {
-						try {
-							Intent intent = new Intent(context, Register.class);
-							startActivity(intent);
-						} catch (Exception e) {
-							showToast(e.getMessage());
-						}
-					}
-				});
-			}// end of else
-
-		}// end of try
-		catch (Exception e) {
-			Log.v("Error", e.getMessage());
+		if (saveLogin) {
+			getCookie(email, password, rememberMe);
 		}
+		email.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void afterTextChanged(Editable s) {
+				textedited = true;
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				textedited = true;
+			}
+		});
+
+		final Button submitButton = (Button) findViewById(R.id.StartupSubmit);
+		submitButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				v.performHapticFeedback(VIRTUAL_KEY);
+				StartupClass context = StartupClass.this;
+				String uEmail = email.getText().toString();
+				String pass = password.getText().toString();
+				try {
+					if (saveLogin) {
+						if (uEmail.equals(Server.getCookie().get("email"))
+								&& textedited == false) {
+							// login with the last stored information
+							Ad ad = new Ad(Server.getCookie())
+									.put("action", "login");
+							new asyncFetchCookie().execute(ad);
+							
+							Intent intent = new Intent(context,
+									StorkClientActivity.class);
+							startActivity(intent);
+						} else {// consider the typed info
+							if (validate(uEmail, pass)) {
+								typedLogin(context, uEmail, pass);
+							}
+						}
+					} else {
+						// consider the typed info
+						if (validate(uEmail, pass)) {
+							typedLogin(context, uEmail, pass);
+						}
+					}
+					if (rememberMe.isChecked()) {
+						setCookie();
+					} else {
+						loginPrefsEditor.clear();
+						loginPrefsEditor.commit();
+					}
+				} catch (Exception e) {
+					Toast.makeText(StartupClass.this, e.getMessage(),
+							Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
+
+		Button registerButton = (Button) findViewById(R.id.StartupRegister);
+		registerButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				try {
+					Intent intent = new Intent(context, Register.class);
+					startActivity(intent);
+				} catch (Exception e) {
+					showToast(e.getMessage());
+				}
+			}
+		});
 
 	}
 
 	private void setCookie() {
 		loginPrefsEditor.putBoolean("saveLogin", true);
-		loginPrefsEditor.putString("cookie", Server.cookie.toString());
+		loginPrefsEditor.putString("cookie", Server.getCookie().toString());
 		loginPrefsEditor.commit();
 	}
 
@@ -141,23 +124,32 @@ public class StartupClass extends Activity {
 			CheckBox rememberMe) {
 		password.setText("password");// fake password
 		String cookie = loginPreferences.getString("cookie", "");
+		Ad ad = null;
 		if (!cookie.isEmpty())
-			Server.cookie = Ad.parse(cookie).filter("email", "hash");// jus get the email and hash
-		email.setText(Server.cookie.get("email"));
+			 ad = Ad.parse(cookie).filter("email", "hash");// jus get
+																		// the
+																		// email
+																		// and
+																		// hash
+		Server.setCookie(ad);
+		email.setText(Server.getCookie().get("email"));
 		rememberMe.setChecked(true);
 	}
+	
+	private class asyncFetchCookie extends AsyncTask<Ad, Void, Void> {
 
-	private Thread asyncFetchCookie(final Ad ad) {
-		return new Thread() {
-			public void run() {
-				try {
-					Server.cookie = Server.sendRequest("/api/stork/user", ad,
-							"POST");
-				} catch (final Exception e) {
-					throw new RuntimeException(e.getMessage());
-				}
+		@Override
+		protected Void doInBackground(Ad... ads) {
+			try {
+				 Ad ad = Server.sendRequest("/api/stork/user", ads[0],
+						"POST");
+				 Server.setCookie(ad);
+			} catch (final Exception e) {
+				throw new RuntimeException(e.getMessage());
 			}
-		};
+			return null;
+		}
+		
 	}
 
 	private boolean validate(String user, String pass) {
@@ -178,26 +170,6 @@ public class StartupClass extends Activity {
 		}
 	}
 
-	private boolean isNetworkAvailable() {
-		boolean flag = false;
-		ConnectivityManager connectivity = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		if (connectivity != null) {
-			NetworkInfo[] info = connectivity.getAllNetworkInfo();
-			if (info != null)
-				for (int i = 0; i < info.length; i++)
-					if (info[i].getState() == NetworkInfo.State.CONNECTED) {
-						flag = true;
-					}
-			NetworkInfo result = connectivity.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-			if (result != null && result.isConnectedOrConnecting())
-				flag = true;
-			
-			if (flag)
-				return Server.isWalledGardenConnection();
-		}
-		return false;
-	}
-
 	private static void showToast(String s) {
 		Toast.makeText(context, s, Toast.LENGTH_LONG).show();
 	}
@@ -216,22 +188,11 @@ public class StartupClass extends Activity {
 						}).show();
 	}
 
-	@Override
-	protected void onRestart() {
-		Log.v("StartupClass", "Restart Called");
-		if (!isNetworkAvailable()) {
-			Log.v("Network is unavailable", "Startup Class");
-			alertbox("Network problem", "Network unavailable");
-		}
-		super.onRestart();
-	}
 
 	private void typedLogin(StartupClass context, String uEmail, String pass) {
 		Ad ad = new Ad("action", "login");
 		ad.put("email", uEmail).put("password", pass);
-		Thread t;
-		t = asyncFetchCookie(ad);
-		t.run();
+		new asyncFetchCookie().execute(ad);
 		Intent intent = new Intent(context, StorkClientActivity.class);
 		startActivity(intent);
 	}

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView  xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <CheckBox
+        android:id="@+id/overW"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Overwrite existing file" />
+	 <CheckBox
+        android:id="@+id/integrity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/overW"
+        android:text="Verify file integrity" />
+	 <CheckBox
+        android:id="@+id/Xfer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/integrity"
+        android:text="Use transfer optimization" />
+	 <CheckBox
+        android:id="@+id/eData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/Xfer"
+        android:text="Encrypt data channel" />
+	 <CheckBox
+        android:id="@+id/cData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/eData"
+        android:text="Compress data channel" />
+</RelativeLayout>
+</ScrollView>

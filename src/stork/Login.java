@@ -2,14 +2,10 @@ package stork;
 
 import stork.ad.Ad;
 import stork.main.R;
-import stork.main.R.layout;
-
-import android.os.Bundle;
 import android.app.Activity;
-import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -42,7 +38,7 @@ public class Login extends Activity {
 					
 					Ad res = Server.sendRequest(null, "/api/stork/cred", ad, "POST");
 					String cred = res.get("uuid");
-					Server.credentialKeys.add(cred);
+					Server.getCredentials().add(cred);
 					Toast.makeText(Login.this, "Got token: "+cred, Toast.LENGTH_LONG).show();
 				} catch (Exception e) {
 					Toast.makeText(Login.this, "Error: "+e.getMessage(), Toast.LENGTH_SHORT).show();

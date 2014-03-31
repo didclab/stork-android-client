@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/listings"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:baselineAligned="false"
+    android:orientation="vertical"
+    android:stretchColumns="1" >
+
+    <include
+        android:id="@+id/left"
+        android:layout_gravity="center_vertical"
+        android:layout_height="wrap_content"
+        layout="@layout/listing" />
+    
+     <include
+        android:id="@+id/right"
+        android:layout_gravity="center_vertical"
+        android:layout_height="wrap_content"
+        layout="@layout/listing" />
+
+</LinearLayout>

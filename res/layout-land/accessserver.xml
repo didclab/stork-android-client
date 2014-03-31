@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/popupElement"
+    style="@android:style/Theme.Holo"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="#FF000000"
@@ -12,8 +13,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/servername"
-        android:text="didclab-ws8"
-        android:imeOptions="actionNext" >
+        android:imeOptions="actionNext"
+        android:text="ftp.mozilla.org" >
+
     </AutoCompleteTextView>
 
     <EditText
@@ -21,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/serverpath"
-        android:text="/home/globus/" >
+        android:text="/" >
 
     </EditText>
 
@@ -36,18 +38,19 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="@string/username" >
-
         </EditText>
-
-        <EditText
+        
+         <EditText
             android:id="@+id/password"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:ems="10"
             android:hint="@string/password"
-            android:inputType="textPassword"
-			android:text="" >
-        </EditText>
+            android:inputType="textPassword" >
+         
+         </EditText>
+        
     </LinearLayout>
 
     <LinearLayout
@@ -63,14 +66,15 @@
             android:hint="@string/protocol"
 			android:text="ftp" >
         </EditText>
+       
 
          <Spinner
              android:id="@+id/spinner1"
              android:layout_width="319dp"
              android:layout_height="match_parent"
-             android:entries="@array/proxy_arrays"
+             android:prompt="@array/proxy_arrays"
              android:gravity="center"
-             android:prompt="@string/cred_prompt" />
+              />
 
     </LinearLayout>
 

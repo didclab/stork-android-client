@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+     <TextView
+         android:id="@+id/textView1"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_alignBaseline="@+id/CheckBox01"
+         android:layout_toRightOf="@+id/CheckBox01"
+         android:text="Overwrite existing files"
+         android:textSize="15sp" />
+
+     <CheckBox
+         android:id="@+id/CheckBox02"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_alignLeft="@+id/CheckBox04"
+         android:layout_below="@+id/CheckBox01"
+         android:layout_marginTop="17dp"
+         android:button="@drawable/checkbox"
+         android:focusable="false"
+         android:focusableInTouchMode="false" />
+
+     
+      <CheckBox
+         android:id="@+id/CheckBox03"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_below="@+id/CheckBox02"
+         android:layout_marginTop="19dp"
+         android:layout_toLeftOf="@+id/textView1"
+         android:button="@drawable/checkbox"
+         android:focusable="false"
+         android:focusableInTouchMode="false" />
+
+     <CheckBox
+         android:id="@+id/CheckBox04"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_below ="@+id/CheckBox03"
+         android:layout_marginTop="21dp"
+         android:button="@drawable/checkbox"
+         android:focusable="false"
+         android:focusableInTouchMode="false" />
+     
+     <CheckBox
+         android:id="@+id/CheckBox05"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_below="@+id/CheckBox04" 
+         android:layout_marginTop="23dp"
+         android:button="@drawable/checkbox"
+         android:focusable="false"
+         android:focusableInTouchMode="false" />
+
+     <TextView
+         android:id="@+id/TextView01"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_alignBaseline="@+id/CheckBox02"
+         android:layout_alignLeft="@+id/textView1"
+         android:layout_alignParentRight="true"
+         android:text="Use transfer optimization"
+         android:textSize="15sp" />
+
+     <TextView
+         android:id="@+id/TextView02"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_alignBaseline="@+id/CheckBox03"
+         android:layout_alignLeft="@+id/TextView01"
+         android:layout_alignParentRight="true"
+         android:text="Verify file integrity"
+         android:textSize="15sp" />
+
+     <TextView
+         android:id="@+id/TextView03"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_alignBaseline="@+id/CheckBox04"
+         android:layout_alignLeft="@+id/TextView02"
+         android:layout_alignParentRight="true"
+         android:text="Encrypt data channel"
+         android:textSize="15sp" />
+
+     <TextView
+         android:id="@+id/TextView04"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_alignBaseline="@+id/CheckBox05"
+         android:layout_alignLeft="@+id/TextView03"
+         android:layout_alignParentRight="true"
+         android:text="Compress data channel"
+         android:textSize="15sp" />
+
+     <CheckBox
+         android:id="@+id/CheckBox01"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_alignParentLeft="true"
+         android:layout_alignParentTop="true"
+         android:button="@drawable/checkbox"
+         android:focusable="false"
+         android:focusableInTouchMode="false" />
+     <!--     <Switch
+         android:id="@+id/check"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_alignParentLeft="true"
+         android:layout_alignParentTop="true"
+         android:height="50dp"
+         android:textOn="On"
+         android:textOff="Off"
+         android:text="switchtext"
+         android:focusable="false"
+         android:focusableInTouchMode="false" />
+      -->
+
+</RelativeLayout>

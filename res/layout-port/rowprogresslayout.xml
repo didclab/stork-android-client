@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/relLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:isScrollContainer="true"
+    android:orientation="horizontal"
+    android:padding="5dp"
+    android:scrollbars="horizontal|vertical" >
+
+    <TextView
+        android:id="@+id/jobID"
+        android:layout_width="50dp"
+        android:layout_height="37dp"
+        android:text="@string/jobid"
+        android:textSize="25dp" />
+
+    <TextView
+        android:id="@+id/progressMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="37dp"
+        android:layout_toRightOf="@id/jobID"
+        android:text="@string/blank"
+        android:textStyle="bold"
+        android:textSize="20dp"
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="120dp"
+        android:layout_height="37dp"
+        android:layout_toRightOf="@id/jobID"
+        android:paddingLeft="10dp"
+        android:paddingRight="20dp"/> 
+        
+     <TextView
+        android:id="@+id/tv_progress"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/progressBar"
+        android:layout_alignLeft="@+id/progressBar"
+        android:layout_alignRight="@+id/progressBar"
+        android:layout_alignTop="@+id/progressBar"
+        android:background="@android:color/transparent"
+        android:gravity="center" />
+ 	
+    <LinearLayout
+        android:id="@+id/llprogress"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/progressBar"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/progressTextOne"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:text="@string/server_one" />
+
+        <TextView
+            android:id="@+id/progressTextTwo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:text="@string/server_two" />
+        
+    </LinearLayout>
+
+</RelativeLayout>

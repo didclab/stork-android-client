@@ -48,7 +48,7 @@ public class FileDialog {
 
         builder.setTitle(currentPath.getPath());
         if (selectDirectoryOption) {
-        	builder.setPositiveButton("Select Directory", new DialogInterface.OnClickListener() {
+        	builder.setPositiveButton("Select DirectoryItem", new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					Log.d(TAG, currentPath.getPath());

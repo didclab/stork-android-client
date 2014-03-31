@@ -22,7 +22,7 @@ import android.widget.TextView;
 public class TreeViewRoot extends TreeView {
 	public final String side;
 	public final View view;
-	public List<TreeView> selectedChild  = new ArrayList<TreeView>();
+	public List<TreeView> selectedChild  = null;
 	public volatile URI uri;
 	public String cred;
 	public ListView lv;
@@ -133,12 +133,14 @@ public class TreeViewRoot extends TreeView {
 
 			public View getView(int position, View convertView, ViewGroup parent) {
 				if(position == 0){
-					Log.v("positiion = 0", "");
+					Log.v("position = 0", "");
 				}
 				TreeView tv = getItem(position);
 				if (tv == null)
 					return null;
-				return getItem(position).convertView((LinearLayout)convertView);
+				View v = getItem(position).convertView((LinearLayout)convertView);
+				
+				return v;
 			}
 		};
 	}
