@@ -87,6 +87,7 @@ public class TreeView {
 		holder.checkBox.setChecked(isSelected);
 		
 		Click click = new Click(holder.checkBox, this);//implements onClick
+		holder.checkBox.setOnClickListener(click);
 		v.setOnClickListener(click);
 		v.invalidate();
 		return v;

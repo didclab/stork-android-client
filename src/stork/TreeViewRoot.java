@@ -68,14 +68,20 @@ public class TreeViewRoot extends TreeView {
 		ImageButton transfer12 = (ImageButton) view.findViewById(R.id.transfer12);
 		transfer12.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				StorkClientActivity.context.makeTransfer(StorkClientActivity.lc[0], StorkClientActivity.lc[1]);
+				StorkClientActivity.context.makeTransfer(
+						StorkClientActivity.lc[0] == null ? null:StorkClientActivity.lc[0], 
+						StorkClientActivity.lc[1] == null ? null:StorkClientActivity.lc[1]
+								);
 			}
 		});
 
 		ImageButton transfer21 = (ImageButton) view.findViewById(R.id.transfer21);
 		transfer21.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				StorkClientActivity.context.makeTransfer(StorkClientActivity.lc[1], StorkClientActivity.lc[0]);
+				StorkClientActivity.context.makeTransfer(
+						StorkClientActivity.lc[1] == null ? null:StorkClientActivity.lc[1], 
+						StorkClientActivity.lc[0] == null ? null:StorkClientActivity.lc[0]
+								);
 			}
 		});
 		TextView left_header = (TextView) view.findViewById(R.id.server_header_left);

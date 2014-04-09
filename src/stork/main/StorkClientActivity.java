@@ -37,7 +37,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class StorkClientActivity extends Activity {
@@ -70,7 +69,6 @@ public class StorkClientActivity extends Activity {
 			+ File.separator + "Certificates";
 
 	/** Called when the activity is first created. */
-	@SuppressWarnings("resource")
 	public void onCreate(Bundle saveState) {
 		try {
 			super.onCreate(saveState);
@@ -233,27 +231,20 @@ public class StorkClientActivity extends Activity {
 		}
 		
 		List<TreeView> from = fromRoot.selectedChild;
-		if(from.size() < 1){
+		if(from == null || from.size() < 1){
 			showToast("Select atleast one source directory", true);
 			return false;
 		}
-		if (toRoot.selectedChild.size() > 1) {
+		
+		TreeView to = null;
+		
+		if(toRoot.selectedChild == null) {
+			to = toRoot;
+		} else if (toRoot.selectedChild.size() > 1) {
 			showToast("Select only one destination", true);
 			return false;
-		}
-		TreeView to = null;
-		Log.v("To size = ", toRoot.selectedChild.size() + "");
-		if (toRoot.selectedChild.size() == 1) {
+		} else if (toRoot.selectedChild.size() == 1){
 			to = toRoot.selectedChild.get(0);
-		}
-		if (toRoot.selectedChild.size() > 1) {
-			showToast("select only one destination");
-		}
-	
-		// if the user misses to select a directory on one of the sides then
-		// transfer to the path set on the login page.
-		if (from != null && to == null) {
-			to = toRoot;// how to acces
 		}
 
 		int counter = 0;
@@ -267,9 +258,11 @@ public class StorkClientActivity extends Activity {
 		//{"src":{"uri":["ftp://didclab-ws8/home/globus/stuff"]},
 		//"dest":{"uri":["ftp://didclab-ws8/home/globus/stuff"]},"options":{"optimizer":null,"overwrite":true,"verify":false,"encrypt":false,"compress":false}}
 		View mSpinner = View.inflate(this, R.layout.spinner, null);
-		Spinner s = (Spinner) mSpinner.findViewById(R.id.spin);
+		Spinner spinner = (Spinner) mSpinner.findViewById(R.id.spin);
+		Log.v("Spinner", spinner.getPrompt().toString());
+		spinner.setPrompt(spinner.getPrompt());
 		ArrayList<RowData> data = getRowData();
-		s.setAdapter(new CustomSpinnerAdapter(getApplicationContext(), data));
+		spinner.setAdapter(new CustomSpinnerAdapter(getApplicationContext(), data));
 		
 		SendDAPFileTask sendDap = new SendDAPFileTask(from, to, data);
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -313,12 +306,8 @@ public class StorkClientActivity extends Activity {
 
 	public static void showToast(final String msg, boolean is_long) {
 		final int l = (is_long) ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT;
-		Toast toast = new Toast(context);
+		Toast toast = Toast.makeText(context, msg, l);
 		toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-		toast.setDuration(l);
-		TextView v = (TextView) context.findViewById(R.id.toasttext);
-		v.setText(msg);
-		toast.setView(context.getLayoutInflater().inflate(R.layout.customtoast, null));
 		toast.show();
 	}
 
